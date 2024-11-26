@@ -8,7 +8,6 @@
   <version>1.0-SNAPSHOT</version>
 
   <name>TwitterScrapper</name>
-  <!-- FIXME change it to the project's website -->
   <url>https://github.com/khizerinam08/Fake-News-Detection-System</url>
 
   <properties>
