@@ -3,6 +3,7 @@ package com.example;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -55,6 +56,28 @@ public class FoxNewsSearch {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        // Set the path for your WebDriver executable (e.g., ChromeDriver)
+        System.setProperty("webdriver.chrome.driver", "path_to_your_chromedriver");
+
+        // Initialize WebDriver (Chrome in this case)
+        WebDriver driver = new ChromeDriver();
+
+        try {
+            // Create an instance of FoxNewsSearch
+            FoxNewsSearch foxNewsSearch = new FoxNewsSearch(driver);
+
+            // Call searchFoxNews with a sample list of keywords
+            foxNewsSearch.searchFoxNews(List.of("technology", "AI", "news"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Close the driver
+            driver.quit();
         }
     }
 }
