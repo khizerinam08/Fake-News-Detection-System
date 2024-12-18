@@ -30,7 +30,10 @@ public class WebScrapingFB {
     }
     
     private static WebDriver initializeDriver() {
-        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver-win64\\chromedriver.exe");
+
+        
+        System.setProperty("webdriver.chrome.driver", "drivers/chromedriver.exe");
+
         
         ChromeOptions options = new ChromeOptions();
         
