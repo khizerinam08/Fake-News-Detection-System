@@ -15,18 +15,18 @@
     </properties>
 
     <dependencies>
-        <!-- Selenium WebDriver -->
+        <!-- Selenium Dependency -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
-            <version>4.16.1</version>
+            <version>4.21.0</version>
         </dependency>
 
-        <!-- WebDriverManager -->
+        <!-- WebDriverManager Dependency -->
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
-            <version>5.6.2</version>
+            <version>5.8.0</version>
         </dependency>
 
         <!-- SLF4J API -->
