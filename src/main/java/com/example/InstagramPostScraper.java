@@ -7,31 +7,62 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class InstagramPostScraper {
-    public static void main(String[] args) {
-        WebDriverManager.chromedriver().setup();
-        WebDriver driver = new ChromeDriver();
+    
+    // WebDriver instance variable
+    private WebDriver driver;
 
+    // Constructor to initialize the WebDriver
+    public InstagramPostScraper() {
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+    }
+
+    // Method to scrape post description based on the URL
+    public String scrapePostDescription(String postUrl) {
         try {
-            //Navigating to post 
-            String postUrl = "https://www.instagram.com/p/DDY8vg2iju9/?img_index=13&igsh=dDdzbTM5d3dtdG9q";
+            // Navigating to post
             driver.get(postUrl);
 
-            //waiting for the content to load
+            // Waiting for the content to load
             Thread.sleep(5000);
 
-            //locatin the meta tag with property="og:description"
+            // Locating the meta tag with property="og:description"
             WebElement metaTag = driver.findElement(By.xpath("//meta[@property='og:description']"));
 
-            //extracting the content attribute from the meta tag
+            // Extracting the content attribute from the meta tag
             String postDescription = metaTag.getAttribute("content");
 
-            //printing the post description
-            System.out.println("Post Description: " + postDescription);
+            // Returning the post description
+            return postDescription;
 
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            driver.quit();
+            return null;
         }
+    }
+
+    // Method to close the driver
+    public void closeDriver() {
+        driver.quit();
+    }
+
+    public static void main(String[] args) {
+        InstagramPostScraper scraper = new InstagramPostScraper();
+
+        // URL of the Instagram post
+        String postUrl = "https://www.instagram.com/p/DDY8vg2iju9/?img_index=13&igsh=dDdzbTM5d3dtdG9q";
+
+        // Scraping the post description
+        String postDescription = scraper.scrapePostDescription(postUrl);
+
+        // Printing the post description
+        if (postDescription != null) {
+            System.out.println("Post Description: " + postDescription);
+        } else {
+            System.out.println("Failed to extract post description.");
+        }
+
+        // Closing the driver
+        scraper.closeDriver();
     }
 }
