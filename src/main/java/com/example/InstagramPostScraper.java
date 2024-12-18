@@ -7,7 +7,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class InstagramPostScraper {
-    
+
     // WebDriver instance variable
     private WebDriver driver;
 
@@ -17,8 +17,8 @@ public class InstagramPostScraper {
         driver = new ChromeDriver();
     }
 
-    // Method to scrape post description based on the URL
-    public String scrapePostDescription(String postUrl) {
+    // Method to scrape post caption based on the URL
+    public String scrapePostCaption(String postUrl) {
         try {
             // Navigating to post
             driver.get(postUrl);
@@ -32,8 +32,16 @@ public class InstagramPostScraper {
             // Extracting the content attribute from the meta tag
             String postDescription = metaTag.getAttribute("content");
 
-            // Returning the post description
-            return postDescription;
+            // Finding the first occurrence of double quotes
+            int startIndex = postDescription.indexOf("\"") + 1;
+            int endIndex = postDescription.indexOf("\"", startIndex);
+
+            // Extracting the caption text inside the double quotes
+            if (startIndex > 0 && endIndex > startIndex) {
+                return postDescription.substring(startIndex, endIndex);
+            } else {
+                return "No caption found.";
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -50,16 +58,16 @@ public class InstagramPostScraper {
         InstagramPostScraper scraper = new InstagramPostScraper();
 
         // URL of the Instagram post
-        String postUrl = "https://www.instagram.com/p/DDY8vg2iju9/?img_index=13&igsh=dDdzbTM5d3dtdG9q";
+        String postUrl = "https://www.instagram.com/reel/DDidni-MF-Y/?igsh=bngwd3h1bjVzOTk2";
 
-        // Scraping the post description
-        String postDescription = scraper.scrapePostDescription(postUrl);
+        // Scraping the post caption
+        String postCaption = scraper.scrapePostCaption(postUrl);
 
-        // Printing the post description
-        if (postDescription != null) {
-            System.out.println("Post Description: " + postDescription);
+        // Printing the post caption
+        if (postCaption != null) {
+            System.out.println("Post Caption: " + postCaption);
         } else {
-            System.out.println("Failed to extract post description.");
+            System.out.println("Failed to extract post caption.");
         }
 
         // Closing the driver
