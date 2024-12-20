@@ -85,5 +85,6 @@
         "c:\\Users\\BS Com\\Downloads\\Compressed\\selenium-java-4.26.0\\selenium-safari-driver-4.26.0-sources.jar",
         "c:\\Users\\BS Com\\Downloads\\Compressed\\selenium-java-4.26.0\\selenium-support-4.26.0.jar",
         "c:\\Users\\BS Com\\Downloads\\Compressed\\selenium-java-4.26.0\\selenium-support-4.26.0-sources.jar"
-    ]
+    ],
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
