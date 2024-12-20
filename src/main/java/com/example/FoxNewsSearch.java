@@ -27,21 +27,19 @@ public class FoxNewsSearch {
             String searchQuery = String.join(" ", keywords);
 
             // Wait until the search toggle is clickable and click it to reveal the search box
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));  // Increased wait time
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
             WebElement searchToggle = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(".js-focus-search")));
             searchToggle.click(); // Click to reveal the search box
 
-            // Wait until the search box is present (not necessarily visible)
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("input[type='search']")));
+            // Wait until the search box is present
+            WebElement searchBox = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("input.resp_site_search")));
 
-            // Find the search box and clear it
-            WebElement searchBox = driver.findElement(By.cssSelector("input[type='search']"));
-            System.out.println("Search box found: " + (searchBox != null));  // Debugging the search box presence
+            // Clear the search box, then enter the search query
             searchBox.clear();
             searchBox.sendKeys(searchQuery);
 
-            // Find the search button and click it
-            WebElement searchButton = driver.findElement(By.cssSelector("button[type='submit']"));
+            // Wait for the search button to be clickable and click it
+            WebElement searchButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("input.resp_site_submit")));
             searchButton.click();
 
             // Wait for the results to load
@@ -61,7 +59,7 @@ public class FoxNewsSearch {
 
     public static void main(String[] args) {
         // Set the path for your WebDriver executable (e.g., ChromeDriver)
-        System.setProperty("webdriver.chrome.driver", "path_to_your_chromedriver");
+        System.setProperty("webdriver.chrome.driver", "drivers/chromedriver.exe");
 
         // Initialize WebDriver (Chrome in this case)
         WebDriver driver = new ChromeDriver();
