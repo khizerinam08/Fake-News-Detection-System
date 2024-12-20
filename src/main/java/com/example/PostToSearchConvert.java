@@ -53,7 +53,9 @@ public class PostToSearchConvert {
             // Expanded exceptions list to preserve certain words
             exceptions = new HashSet<>(Arrays.asList(
                 "news", "football", "score", "highlight", "match", "breaking", "update",
-                "climate", "wildlife", "impact", "results"
+                "climate", "wildlife", "impact", "results", "refugees", "syria", "bashar",
+                "toppling", "fragile", "conflict", "return", "society", "genova", "press", "briefing",
+                "country", "people"
             ));
 
         } catch (IOException e) {
@@ -95,6 +97,11 @@ public class PostToSearchConvert {
             }
         }
 
+        // Restrict the output to the first 10 words
+        if (keywords.size() > 10) {
+            keywords = keywords.subList(0, 10);
+        }
+
         // Join keywords into a search query
         return String.join(" ", keywords);
     }
@@ -102,17 +109,14 @@ public class PostToSearchConvert {
     public static void main(String[] args) {
         PostToSearchConvert converter = new PostToSearchConvert();
 
-        // Example captions
-        String caption1 = "This is a breaking news update about global climate change and its impact on wildlife.";
-        String caption2 = "Latest football match results are in! Check out the highlights and scores now.";
+        // Example caption
+        String caption1 = "Large-scale returns of refugees to Syria could overwhelm the country and even stoke conflict at a fragile moment following the toppling of President Bashar al-Assad earlier this month, the head of the UN migration agency told reporters on Friday.\n" +
+                          "\"We believe that millions of people returning would create conflict within an already fragile society,\" said Amy Pope, director-general of the International Organization for Migration, told a Geneva press briefing after a trip to the country.";
 
-        // Convert captions to search-friendly strings
+        // Convert caption to search-friendly string
         String searchQuery1 = converter.convert(caption1);
-        String searchQuery2 = converter.convert(caption2);
 
         System.out.println("Original Caption 1: " + caption1);
         System.out.println("Search Query 1: " + searchQuery1);
-        System.out.println("\nOriginal Caption 2: " + caption2);
-        System.out.println("Search Query 2: " + searchQuery2);
     }
 }
