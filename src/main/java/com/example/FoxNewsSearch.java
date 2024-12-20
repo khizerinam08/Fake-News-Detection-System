@@ -18,13 +18,13 @@ public class FoxNewsSearch {
         this.driver = driver;
     }
 
-    public void searchFoxNews(List<String> keywords) {
+    public void searchFoxNews(String searchString) {
         try {
             // Navigate to Fox News
             driver.get("https://www.foxnews.com");
 
             // Build the search query from keywords
-            String searchQuery = String.join(" ", keywords);
+            String searchQuery = String.join(" ", searchString);
 
             // Wait until the search toggle is clickable and click it to reveal the search box
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
@@ -69,7 +69,7 @@ public class FoxNewsSearch {
             FoxNewsSearch foxNewsSearch = new FoxNewsSearch(driver);
 
             // Call searchFoxNews with a sample list of keywords
-            foxNewsSearch.searchFoxNews(List.of("technology", "AI", "news"));
+            foxNewsSearch.searchFoxNews("CEO UnitedHealthcare was fatally shot what police said appears be \"premeditated, preplanned targeted");
 
         } catch (Exception e) {
             e.printStackTrace();

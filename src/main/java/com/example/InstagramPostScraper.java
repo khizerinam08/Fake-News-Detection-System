@@ -33,15 +33,16 @@ public class InstagramPostScraper {
             String postDescription = metaTag.getAttribute("content");
 
             // Finding the first occurrence of double quotes
-            int startIndex = postDescription.indexOf("\"") + 1;
-            int endIndex = postDescription.indexOf("\"", startIndex);
+            //int startIndex = postDescription.indexOf("\"") + 1;
+            //int endIndex = postDescription.indexOf("\"", startIndex);
 
             // Extracting the caption text inside the double quotes
-            if (startIndex > 0 && endIndex > startIndex) {
-                return postDescription.substring(startIndex, endIndex);
-            } else {
-                return "No caption found.";
-            }
+            //if (startIndex > 0 && endIndex > startIndex) {
+                //return postDescription.substring(startIndex, endIndex);
+            //} else {
+                //return "No caption found.";
+            //}
+            return postDescription;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -58,7 +59,7 @@ public class InstagramPostScraper {
         InstagramPostScraper scraper = new InstagramPostScraper();
 
         // URL of the Instagram post
-        String postUrl = "https://www.instagram.com/reel/DDidni-MF-Y/?igsh=bngwd3h1bjVzOTk2";
+        String postUrl = "https://www.instagram.com/nbcnightlynews/reel/DDLQwsssWS7/";
 
         // Scraping the post caption
         String postCaption = scraper.scrapePostCaption(postUrl);
