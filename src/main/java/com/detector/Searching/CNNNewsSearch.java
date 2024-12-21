@@ -1,4 +1,4 @@
-package com.example;
+package com.detector.Searching;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -12,17 +12,17 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.Optional;
 
-public class BBCNewsScraper implements AutoCloseable {
-    private static final Logger logger = LoggerFactory.getLogger(BBCNewsScraper.class);
+public class CNNNewsSearch implements AutoCloseable {
+    private static final Logger logger = LoggerFactory.getLogger(CNNNewsSearch.class);
     private final WebDriver driver;
     private final WebDriverWait wait;
     private final int timeoutSeconds;
 
-    public BBCNewsScraper(int timeoutSeconds) {
+    public CNNNewsSearch(int timeoutSeconds) {
         this.timeoutSeconds = timeoutSeconds;
         this.driver = initializeDriver();
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
-        logger.info("BBCNewsScraper initialized with timeout of {} seconds", timeoutSeconds);
+        logger.info("CNNNewsSearch initialized with timeout of {} seconds", timeoutSeconds);
     }
 
     private WebDriver initializeDriver() {
@@ -41,8 +41,7 @@ public class BBCNewsScraper implements AutoCloseable {
             throw new ScraperException("Failed to initialize WebDriver", e);
         }
     }
-
-    public Optional<String> scrapeBBCNews(String searchQuery) {
+    public Optional<String> scrapeCNNNews(String searchQuery) {
         try {
             navigateToHomepage();
             if (!performSearch(searchQuery)) {
@@ -57,10 +56,10 @@ public class BBCNewsScraper implements AutoCloseable {
 
     private void navigateToHomepage() {
         try {
-            driver.get("https://www.bbc.co.uk/news");
+            driver.get("https://edition.cnn.com/");
             // Wait for page load and handle any consent dialogs if they appear
             handleConsentDialog();
-            logger.info("Navigated to BBC News homepage");
+            logger.info("Navigated to CNN News homepage");
         } catch (Exception e) {
             logger.error("Failed to navigate to homepage: {}", e.getMessage());
             throw new ScraperException("Failed to navigate to homepage", e);
@@ -79,15 +78,13 @@ public class BBCNewsScraper implements AutoCloseable {
             logger.debug("No consent dialog found or already accepted");
         }
     }
-
     private boolean performSearch(String query) {
         try {
             // Updated selector for the search button
-            WebElement searchIcon = waitForElement(By.cssSelector("button[role='button'][aria-label='Search BBC']"));
+            WebElement searchIcon = waitForElement(By.cssSelector("[aria-label=\"Search Icon\"]"));
             searchIcon.click();
-    
             // Wait for the search input field
-            WebElement searchBox = waitForElement(By.cssSelector("[data-testid='search-input-field']"));
+            WebElement searchBox = waitForElement(By.cssSelector("[class='search-bar__input']"));
             searchBox.clear();
             searchBox.sendKeys(query);
             searchBox.sendKeys(Keys.RETURN);
@@ -101,7 +98,7 @@ public class BBCNewsScraper implements AutoCloseable {
     private Optional<String> getTopArticleHeadline() {
         try {
             // Wait for and locate the first headline
-            WebElement headlineElement = waitForElement(By.cssSelector("h2[data-testid='card-headline']"));
+            WebElement headlineElement = waitForElement(By.cssSelector("[class='container__headline-text']"));
             String headline = headlineElement.getText();
             logger.info("Found headline: {}", headline);
             return Optional.of(headline);
@@ -110,7 +107,6 @@ public class BBCNewsScraper implements AutoCloseable {
             return Optional.empty();
         }
         }
-
     private WebElement waitForElement(By locator) {
         try {
             return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
@@ -131,9 +127,9 @@ public class BBCNewsScraper implements AutoCloseable {
         }
     }
     public static void main(String[] args) {
-        try (BBCNewsScraper scraper = new BBCNewsScraper(10)) {
+        try (CNNNewsSearch scraper = new CNNNewsSearch(10)) {
             String searchQuery = "technology";
-            Optional<String> headline = scraper.scrapeBBCNews(searchQuery);
+            Optional<String> headline = scraper.scrapeCNNNews(searchQuery);
             
             headline.ifPresentOrElse(
                 h -> System.out.println("Found headline: " + h),
@@ -154,4 +150,3 @@ class ScraperException extends RuntimeException {
         super(message, cause);
     }
 }
-
