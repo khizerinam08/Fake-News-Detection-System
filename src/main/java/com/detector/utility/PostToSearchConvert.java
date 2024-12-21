@@ -1,4 +1,4 @@
-package com.example;
+package com.detector.utility;
 
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
@@ -98,8 +98,8 @@ public class PostToSearchConvert {
         }
 
         // Restrict the output to the first 10 words
-        if (keywords.size() > 10) {
-            keywords = keywords.subList(0, 10);
+        if (keywords.size() > 4) {
+            keywords = keywords.subList(0, 4);
         }
 
         // Join keywords into a search query
@@ -110,8 +110,7 @@ public class PostToSearchConvert {
         PostToSearchConvert converter = new PostToSearchConvert();
 
         // Example caption
-        String caption1 = "Large-scale returns of refugees to Syria could overwhelm the country and even stoke conflict at a fragile moment following the toppling of President Bashar al-Assad earlier this month, the head of the UN migration agency told reporters on Friday.\n" +
-                          "\"We believe that millions of people returning would create conflict within an already fragile society,\" said Amy Pope, director-general of the International Organization for Migration, told a Geneva press briefing after a trip to the country.";
+        String caption1 = "CEO UnitedHealthcare was fatally shot what police said appears be \\\"premeditated, preplanned targeted\\\"";
 
         // Convert caption to search-friendly string
         String searchQuery1 = converter.convert(caption1);

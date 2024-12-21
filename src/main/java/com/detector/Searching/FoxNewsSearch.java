@@ -1,4 +1,4 @@
-package com.example;
+package com.detector.Searching;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -42,17 +42,25 @@ public class FoxNewsSearch {
             WebElement searchButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("input.resp_site_submit")));
             searchButton.click();
 
-            // Wait for the results to load
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".article .title")));
+            // Wait for the results to load using the exact HTML structure
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("article.article div.info")));
 
-            // Extract and print article titles
-            List<WebElement> articles = driver.findElements(By.cssSelector(".article .title"));
-            for (WebElement article : articles) {
-                String articleTitle = article.getText();
-                System.out.println("Article Title: " + articleTitle);
+            // Find all articles and retrieve their titles
+            List<WebElement> articles = driver.findElements(
+                By.cssSelector("article.article div.info header.info-header h2.title")
+            );
+
+            if (!articles.isEmpty()) {
+                System.out.println("Article Titles:");
+                for (WebElement article : articles) {
+                    String title = article.getText();
+                    System.out.println(title);
+                }
+            } else {
+                System.out.println("No articles found.");
             }
-
         } catch (Exception e) {
+            System.out.println("Error during search and navigation:");
             e.printStackTrace();
         }
     }
@@ -69,7 +77,7 @@ public class FoxNewsSearch {
             FoxNewsSearch foxNewsSearch = new FoxNewsSearch(driver);
 
             // Call searchFoxNews with a sample list of keywords
-            foxNewsSearch.searchFoxNews("CEO UnitedHealthcare was fatally shot what police said appears be \"premeditated, preplanned targeted");
+            foxNewsSearch.searchFoxNews("donald trump");
 
         } catch (Exception e) {
             e.printStackTrace();
