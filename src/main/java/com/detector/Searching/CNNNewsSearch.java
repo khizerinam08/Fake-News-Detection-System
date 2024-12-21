@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class CNNNewsSearch implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(CNNNewsSearch.class);
     private final WebDriver driver;
     private final WebDriverWait wait;
+    private static final int MAX_PAGES = 3; // Limit to first 3 pages
 
     public CNNNewsSearch(int timeoutSeconds) {
         this.driver = initializeDriver();
@@ -49,7 +49,7 @@ public class CNNNewsSearch implements AutoCloseable {
             if (!performSearch(searchQuery)) {
                 return new ArrayList<>();
             }
-            return getAllArticleHeadlines();
+            return getAllHeadlinesFromMultiplePages();
         } catch (Exception e) {
             logger.error("Error during scraping: {}", e.getMessage());
             return new ArrayList<>();
@@ -94,20 +94,47 @@ public class CNNNewsSearch implements AutoCloseable {
         }
     }
 
-    private List<String> getAllArticleHeadlines() {
+    private List<String> getAllHeadlinesFromMultiplePages() {
+        List<String> allHeadlines = new ArrayList<>();
+        int currentPage = 1;
+
         try {
-            List<WebElement> headlineElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
-                    By.cssSelector("[class='container__headline-text']")));
-            List<String> headlines = new ArrayList<>();
-            for (WebElement element : headlineElements) {
-                headlines.add(element.getText());
+            while (currentPage <= MAX_PAGES) {
+                // Wait for headlines to load
+                Thread.sleep(2000); // Add a small delay for page load
+                
+                // Fetch headlines from the current page
+                List<WebElement> headlineElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+                        By.cssSelector("[class='container__headline-text']")));
+                
+                for (WebElement element : headlineElements) {
+                    allHeadlines.add(element.getText());
+                }
+                logger.info("Retrieved {} headlines from page {}", headlineElements.size(), currentPage);
+
+                if (currentPage >= MAX_PAGES) {
+                    break;
+                }
+
+                // Updated selector for the next page button
+                WebElement nextPageButton = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.cssSelector("div.pagination-arrow.pagination-arrow-right.search__pagination-link.text-active")));
+                
+                if (nextPageButton.isDisplayed() && nextPageButton.isEnabled()) {
+                    nextPageButton.click();
+                    currentPage++;
+                    // Wait for the new page to load
+                    Thread.sleep(2000); // Add a small delay after clicking
+                } else {
+                    logger.info("Next page button not clickable on page {}", currentPage);
+                    break;
+                }
             }
-            logger.info("Retrieved {} headlines", headlines.size());
-            return headlines;
         } catch (Exception e) {
-            logger.error("Error retrieving article headlines: {}", e.getMessage());
-            return new ArrayList<>();
+            logger.error("Error during pagination: {}", e.getMessage());
         }
+
+        return allHeadlines;
     }
 
     private WebElement waitForElement(By locator) {
