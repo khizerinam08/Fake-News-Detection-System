@@ -1,4 +1,4 @@
-package com.example;
+package com.detector.Searching;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -6,10 +6,12 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 import java.time.Duration;
 import java.util.List;
 
 public class FoxNewsSearch {
+
     private WebDriver driver;
 
     public FoxNewsSearch(WebDriver driver) {
@@ -43,26 +45,17 @@ public class FoxNewsSearch {
             // Wait for the results to load using the exact HTML structure
             wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("article.article div.info")));
 
-            // Find all articles using the complete path from the HTML structure
+            // Find all articles and retrieve their titles
             List<WebElement> articles = driver.findElements(
-                By.cssSelector("article.article div.info header.info-header h2.title a")
+                By.cssSelector("article.article div.info header.info-header h2.title")
             );
 
             if (!articles.isEmpty()) {
-                // Get the first article's URL before clicking
-                String articleUrl = articles.get(0).getAttribute("href");
-                System.out.println("Attempting to navigate to: " + articleUrl);
-
-                // Click the first article
-                articles.get(0).click();
-
-                // Wait for the article content to load
-                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".article-body")));
-
-                // Retrieve and print the article content
-                WebElement articleBody = driver.findElement(By.cssSelector(".article-body"));
-                String articleContent = articleBody.getText();
-                System.out.println("Article Content: " + articleContent);
+                System.out.println("Article Titles:");
+                for (WebElement article : articles) {
+                    String title = article.getText();
+                    System.out.println(title);
+                }
             } else {
                 System.out.println("No articles found.");
             }
@@ -83,8 +76,9 @@ public class FoxNewsSearch {
             // Create an instance of FoxNewsSearch
             FoxNewsSearch foxNewsSearch = new FoxNewsSearch(driver);
 
-            // Call searchFoxNews with the search query
-            foxNewsSearch.searchFoxNews("trump");
+            // Call searchFoxNews with a sample list of keywords
+            foxNewsSearch.searchFoxNews("donald trump");
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

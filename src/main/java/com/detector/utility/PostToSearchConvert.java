@@ -1,4 +1,4 @@
-package com.example;
+package com.detector.utility;
 
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
