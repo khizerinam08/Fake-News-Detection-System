@@ -1,4 +1,5 @@
 package com.detector.Searching;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -9,17 +10,18 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class CNNNewsSearch implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(CNNNewsSearch.class);
     private final WebDriver driver;
     private final WebDriverWait wait;
-    private final int timeoutSeconds;
 
     public CNNNewsSearch(int timeoutSeconds) {
-        this.timeoutSeconds = timeoutSeconds;
         this.driver = initializeDriver();
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
         logger.info("CNNNewsSearch initialized with timeout of {} seconds", timeoutSeconds);
@@ -31,7 +33,6 @@ public class CNNNewsSearch implements AutoCloseable {
             options.addArguments("--start-maximized");
             options.addArguments("--disable-notifications");
             options.addArguments("--remote-allow-origins=*");
-            // Add arguments to reduce warnings
             options.addArguments("--disable-dev-shm-usage");
             options.addArguments("--no-sandbox");
             options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
@@ -41,23 +42,23 @@ public class CNNNewsSearch implements AutoCloseable {
             throw new ScraperException("Failed to initialize WebDriver", e);
         }
     }
-    public Optional<String> scrapeCNNNews(String searchQuery) {
+
+    public List<String> scrapeCNNNews(String searchQuery) {
         try {
             navigateToHomepage();
             if (!performSearch(searchQuery)) {
-                return Optional.empty();
+                return new ArrayList<>();
             }
-            return getTopArticleHeadline();
+            return getAllArticleHeadlines();
         } catch (Exception e) {
             logger.error("Error during scraping: {}", e.getMessage());
-            return Optional.empty();
+            return new ArrayList<>();
         }
     }
 
     private void navigateToHomepage() {
         try {
             driver.get("https://edition.cnn.com/");
-            // Wait for page load and handle any consent dialogs if they appear
             handleConsentDialog();
             logger.info("Navigated to CNN News homepage");
         } catch (Exception e) {
@@ -68,22 +69,19 @@ public class CNNNewsSearch implements AutoCloseable {
 
     private void handleConsentDialog() {
         try {
-            // Wait for a short time to see if consent dialog appears
             WebElement consentButton = wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.cssSelector("[data-testid='agree-button']")));
+                    By.cssSelector("[data-testid='agree-button']")));
             consentButton.click();
             logger.info("Handled consent dialog");
         } catch (Exception e) {
-            // If no consent dialog appears, continue normally
             logger.debug("No consent dialog found or already accepted");
         }
     }
+
     private boolean performSearch(String query) {
         try {
-            // Updated selector for the search button
             WebElement searchIcon = waitForElement(By.cssSelector("[aria-label=\"Search Icon\"]"));
             searchIcon.click();
-            // Wait for the search input field
             WebElement searchBox = waitForElement(By.cssSelector("[class='search-bar__input']"));
             searchBox.clear();
             searchBox.sendKeys(query);
@@ -95,18 +93,23 @@ public class CNNNewsSearch implements AutoCloseable {
             return false;
         }
     }
-    private Optional<String> getTopArticleHeadline() {
+
+    private List<String> getAllArticleHeadlines() {
         try {
-            // Wait for and locate the first headline
-            WebElement headlineElement = waitForElement(By.cssSelector("[class='container__headline-text']"));
-            String headline = headlineElement.getText();
-            logger.info("Found headline: {}", headline);
-            return Optional.of(headline);
+            List<WebElement> headlineElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+                    By.cssSelector("[class='container__headline-text']")));
+            List<String> headlines = new ArrayList<>();
+            for (WebElement element : headlineElements) {
+                headlines.add(element.getText());
+            }
+            logger.info("Retrieved {} headlines", headlines.size());
+            return headlines;
         } catch (Exception e) {
-            logger.error("Error getting article headline: {}", e.getMessage());
-            return Optional.empty();
+            logger.error("Error retrieving article headlines: {}", e.getMessage());
+            return new ArrayList<>();
         }
-        }
+    }
+
     private WebElement waitForElement(By locator) {
         try {
             return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
@@ -115,6 +118,7 @@ public class CNNNewsSearch implements AutoCloseable {
             throw new ScraperException("Element not found: " + locator, e);
         }
     }
+
     @Override
     public void close() {
         try {
@@ -126,15 +130,20 @@ public class CNNNewsSearch implements AutoCloseable {
             logger.error("Error closing WebDriver: {}", e.getMessage());
         }
     }
+
     public static void main(String[] args) {
         try (CNNNewsSearch scraper = new CNNNewsSearch(10)) {
             String searchQuery = "technology";
-            Optional<String> headline = scraper.scrapeCNNNews(searchQuery);
-            
-            headline.ifPresentOrElse(
-                h -> System.out.println("Found headline: " + h),
-                () -> System.out.println("Failed to retrieve headline")
-            );
+            List<String> headlines = scraper.scrapeCNNNews(searchQuery);
+
+            if (headlines.isEmpty()) {
+                System.out.println("No headlines found.");
+            } else {
+                System.out.println("Found Headlines:");
+                for (String headline : headlines) {
+                    System.out.println("- " + headline);
+                }
+            }
         } catch (Exception e) {
             System.err.println("Error occurred: " + e.getMessage());
             logger.error("Application error: ", e);
@@ -146,6 +155,7 @@ class ScraperException extends RuntimeException {
     public ScraperException(String message) {
         super(message);
     }
+
     public ScraperException(String message, Throwable cause) {
         super(message, cause);
     }
