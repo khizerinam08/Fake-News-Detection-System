@@ -1,4 +1,4 @@
-package org.example;
+package com.detector.Searching;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -11,7 +11,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimpleWebScraper {
+public class AlJazeeraScrapper {
     public static void main(String[] args) {
         // Set up ChromeOptions (optional for headless mode)
         ChromeOptions options = new ChromeOptions();
