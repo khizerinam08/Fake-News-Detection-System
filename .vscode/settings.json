@@ -87,5 +87,6 @@
         "c:\\Users\\BS Com\\Downloads\\Compressed\\selenium-java-4.26.0\\selenium-support-4.26.0-sources.jar"
     ],
     "java.configuration.updateBuildConfiguration": "interactive",
-    "java.debug.settings.onBuildFailureProceed": true
+    "java.debug.settings.onBuildFailureProceed": true,
+    "java.compile.nullAnalysis.mode": "automatic"
 }
