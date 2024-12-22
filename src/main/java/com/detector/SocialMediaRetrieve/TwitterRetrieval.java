@@ -1,4 +1,4 @@
-package org.example;
+package com.detector.SocialMediaRetrieve;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -50,7 +50,7 @@ public class TwitterRetrieval {
     /*
      * This method calls the v2 Tweets endpoint with ids as query parameter
      */
-    private static String getTweets(String ids, String bearerToken) throws IOException, URISyntaxException {
+    public static String getTweets(String ids, String bearerToken) throws IOException, URISyntaxException {
         String tweetResponse = null;
 
         HttpClient httpClient = HttpClients.custom()
@@ -99,7 +99,7 @@ public class TwitterRetrieval {
     /*
      * Extracts the tweet ID from a given Twitter URL
      */
-    private static String extractTweetIdFromUrl(String url) {
+    public static String extractTweetIdFromUrl(String url) {
         try {
             // Extract the tweet ID from the URL
             String[] parts = url.split("/");

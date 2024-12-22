@@ -1,6 +1,7 @@
 package com.detector;
 
 import com.detector.SocialMediaRetrieve.InstagramPostScraper;
+import com.detector.SocialMediaRetrieve.TwitterRetrieval;
 import com.detector.SocialMediaRetrieve.WebScrapingFBUpdated;
 import com.detector.Searching.AlJazeeraScrapper;
 import com.detector.Searching.BBCNewsScraper;
@@ -12,7 +13,9 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.util.*;
 
 public class MainScraper {
@@ -32,7 +35,7 @@ public class MainScraper {
             } else if (link.contains("facebook.com")) {
                 postText = scrapeFacebookPost(driver, link);
             } else if (link.contains("twitter.com")) {
-                postText = scrapeTwitterPost(driver, link);
+                postText = scrapeTwitterPost(link);
             } else {
                 System.out.println("Unsupported link. Please provide a link from Instagram, Facebook, or Twitter.");
             }
@@ -94,10 +97,27 @@ public class MainScraper {
         }
     }
 
-    private static String scrapeTwitterPost(WebDriver driver, String link) {
-        // Implement Twitter scraper here
-        System.out.println("Twitter scraping is not implemented yet.");
-        return "";
+    private static String scrapeTwitterPost(String link) {
+        String bearerToken = "AAAAAAAAAAAAAAAAAAAAAO6fxAEAAAAACpMKeL9AQM4dGiMPyNRxxgHCfHw%3DhbKyHC1W7QhXQNVAI1tqj4gNUcNdxG8Ae7VaF3iKHWhtxbrnkY"; 
+        String tweetId = TwitterRetrieval.extractTweetIdFromUrl(link);
+        if (tweetId == null) {
+            System.out.println("Invalid Twitter URL. Please provide a valid URL.");
+            return "";
+        }
+
+        try {
+            String tweetText = TwitterRetrieval.getTweets(tweetId, bearerToken);
+            if (tweetText != null && !tweetText.isEmpty()) {
+                System.out.println("Tweet Text: " + tweetText);
+                return tweetText;
+            } else {
+                System.out.println("Could not fetch the tweet.");
+                return "";
+            }
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 
     private static Map<String, List<String>> collectHeadlines(WebDriver driver, String keyword) {
@@ -105,7 +125,7 @@ public class MainScraper {
 
         // Al Jazeera
         System.out.println("Searching headlines on Al Jazeera...");
-        AlJazeeraScrapper alJazeeraScrapper = new AlJazeeraScrapper(driver);
+        AlJazeeraScrapper alJazeeraScrapper = new AlJazeeraScrapper();
         List<String> alJazeeraHeadlines = alJazeeraScrapper.searchAlJazeera(keyword);
         headlinesMap.put("Al Jazeera", alJazeeraHeadlines);
 
