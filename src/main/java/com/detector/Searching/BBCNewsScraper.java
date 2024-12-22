@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+
+=======
+>>>>>>> d1e2e9cc1cc46c01ca5cccb8250dadca31875ee9
 package com.detector.Searching;
 
 import org.openqa.selenium.By;
