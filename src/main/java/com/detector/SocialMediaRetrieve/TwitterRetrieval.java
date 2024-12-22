@@ -1,4 +1,4 @@
-package org.example;
+package com.detector.SocialMediaRetrieve;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
