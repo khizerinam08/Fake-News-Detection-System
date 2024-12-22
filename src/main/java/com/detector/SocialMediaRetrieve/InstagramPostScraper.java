@@ -58,7 +58,7 @@ public class InstagramPostScraper {
         InstagramPostScraper scraper = new InstagramPostScraper();
 
         // URL of the Instagram post
-        String postUrl = "https://www.instagram.com/nbcnightlynews/reel/DDLQwsssWS7/";
+        String postUrl = "https://www.instagram.com/p/DD3tDOXxSYK/?igsh=bjZuNTl4NXo5NW13";
 
         // Scraping the post caption
         String postCaption = scraper.scrapePostCaption(postUrl);

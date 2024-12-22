@@ -20,12 +20,12 @@ import java.util.*;
 
 public class MainScraper {
     public static void main(String[] args) {
-        if (args.length == 0) {
-            System.out.println("Please provide a link as an argument.");
-            return;
-        }
+        //if (args.length == 0) {
+           //System.out.println("Please provide a link as an argument.");
+            //return;
+       // }
 
-        String link = args[0];
+        String link = "https://www.instagram.com/p/DD3tDOXxSYK/?igsh=bjZuNTl4NXo5NW13";
         WebDriver driver = initializeDriver();
         String postText = "";
 
@@ -34,7 +34,7 @@ public class MainScraper {
                 postText = scrapeInstagramPost(driver, link);
             } else if (link.contains("facebook.com")) {
                 postText = scrapeFacebookPost(driver, link);
-            } else if (link.contains("twitter.com")) {
+            } else if (link.contains("x.com")) {
                 postText = scrapeTwitterPost(link);
             } else {
                 System.out.println("Unsupported link. Please provide a link from Instagram, Facebook, or Twitter.");
@@ -64,7 +64,7 @@ public class MainScraper {
     }
 
     private static WebDriver initializeDriver() {
-        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver-win64\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "./drivers/chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--start-maximized");
         options.addArguments("--disable-blink-features=AutomationControlled");

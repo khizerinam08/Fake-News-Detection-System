@@ -71,7 +71,19 @@
             <version>4.5.14</version>
         </dependency>
 
-        <!-- Apache HttpClient 5.x Dependency (if needed) -->
+        <!-- OpenNLP Tokenizer and POS Tagging Dependencies -->
+        <dependency>
+            <groupId>org.apache.opennlp</groupId>
+            <artifactId>opennlp-tools</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.opennlp</groupId>
+            <artifactId>opennlp-uima</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+
+        <!-- Apache HttpClient 5.x Dependency (optional) -->
         <!-- Uncomment the following block if switching to HttpClient 5.x -->
         <!--
         <dependency>
