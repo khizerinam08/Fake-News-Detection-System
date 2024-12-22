@@ -1,4 +1,3 @@
-import sys
 import torch
 from transformers import AutoTokenizer, AutoModel
 import warnings
@@ -89,17 +88,15 @@ def analyze_contradiction(text1, text2):
     }
 
 def main():
-    if len(sys.argv) != 3:
-        print(json.dumps({"error": "Expected 2 arguments"}))
-        sys.exit(1)
+    # Hardcoded example strings
+    text1 = "The sky is blue"
+    text2 = "The sky is not blue"
     
     try:
-        result = analyze_contradiction(sys.argv[1], sys.argv[2])
-        print(json.dumps(result))
-        sys.stdout.flush()
+        result = analyze_contradiction(text1, text2)
+        print(json.dumps(result, indent=2))
     except Exception as e:
-        print(json.dumps({"error": str(e)}))
-        sys.exit(1)
+        print(json.dumps({"error": str(e)}, indent=2))
 
 if __name__ == "__main__":
     main()
