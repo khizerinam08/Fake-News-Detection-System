@@ -32,17 +32,16 @@ public class InstagramPostScraper {
             // Extracting the content attribute from the meta tag
             String postDescription = metaTag.getAttribute("content");
 
-            // Finding the first occurrence of double quotes
-            //int startIndex = postDescription.indexOf("\"") + 1;
-            //int endIndex = postDescription.indexOf("\"", startIndex);
+            // Finding the indices of the first and last double quotes
+            int startIndex = postDescription.indexOf("\"") + 1;
+            int endIndex = postDescription.lastIndexOf("\"");
 
-            // Extracting the caption text inside the double quotes
-            //if (startIndex > 0 && endIndex > startIndex) {
-                //return postDescription.substring(startIndex, endIndex);
-            //} else {
-                //return "No caption found.";
-            //}
-            return postDescription;
+            // Extracting the caption text between the quotes
+            if (startIndex > 0 && endIndex > startIndex) {
+                return postDescription.substring(startIndex, endIndex);
+            } else {
+                return "No caption found.";
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,7 +65,7 @@ public class InstagramPostScraper {
 
         // Printing the post caption
         if (postCaption != null) {
-            System.out.println("Post Caption: " + postCaption);
+            System.out.println(postCaption);
         } else {
             System.out.println("Failed to extract post caption.");
         }
