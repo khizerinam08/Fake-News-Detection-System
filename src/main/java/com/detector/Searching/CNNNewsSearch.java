@@ -158,7 +158,7 @@ public class CNNNewsSearch implements AutoCloseable {
         }
     }
 
-    public static void main(String[] args) {
+    public static void runScraper(String[] args) {
         try (CNNNewsSearch scraper = new CNNNewsSearch(10)) {
             String searchQuery = "technology";
             List<String> headlines = scraper.scrapeCNNNews(searchQuery);
@@ -176,7 +176,6 @@ public class CNNNewsSearch implements AutoCloseable {
             logger.error("Application error: ", e);
         }
     }
-}
 
 class ScraperException extends RuntimeException {
     public ScraperException(String message) {
@@ -186,4 +185,5 @@ class ScraperException extends RuntimeException {
     public ScraperException(String message, Throwable cause) {
         super(message, cause);
     }
+}
 }
