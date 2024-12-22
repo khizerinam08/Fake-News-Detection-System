@@ -46,7 +46,8 @@ public class WebScrapingFBUpdated {
         ((ChromeDriver) driver).executeCdpCommand("Page.addScriptToEvaluateOnNewDocument", parameters);
         return driver;
     }
-    private static void scrapePost(WebDriver driver) {
+    public static String scrapePost(WebDriver driver) {
+        String postContent = "";
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT));
         try {
             System.out.println("Navigating to post...");
@@ -65,6 +66,7 @@ public class WebScrapingFBUpdated {
                 "div.x11i5rnm.xat24cr div[dir='auto']"
             };
             boolean contentFound = false;
+            String content = "";
             for (String selector : contentSelectors) {
                 try {
                     System.out.println("Trying selector: " + selector);
@@ -84,18 +86,19 @@ public class WebScrapingFBUpdated {
             if (!contentFound) {
                 JavascriptExecutor js = (JavascriptExecutor) driver; // Try using JavaScript as a fallback
                 String jsScript = "return Array.from(document.querySelectorAll('div[dir=\"auto\"]')).map(el => el.textContent).join('\\n');";
-                String content = (String) js.executeScript(jsScript);
+                content = (String) js.executeScript(jsScript);
                 if (content != null && !content.trim().isEmpty()) {
                     System.out.println("\nFound content using JavaScript fallback:\n" + content);
                     contentFound = true;
                 }
             }
             if (!contentFound) {
-                System.out.println("Could not extract post content with any method");
+                postContent = content;
             }
         } catch (Exception e) {
             System.err.println("Error during scraping: " + e.getMessage());
             e.printStackTrace();
         }
+        return postContent;
     }
-}
+    }

@@ -9,6 +9,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.ArrayList;
 
 public class FoxNewsSearch {
 
@@ -17,8 +18,8 @@ public class FoxNewsSearch {
     public FoxNewsSearch(WebDriver driver) {
         this.driver = driver;
     }
-
-    public void searchFoxNews(String searchString) {
+    public List<String> searchFoxNews(String searchString) {
+        List<String> articleTitles = new ArrayList<>();
         try {
             // Navigate to Fox News
             driver.get("https://www.foxnews.com");
@@ -50,19 +51,20 @@ public class FoxNewsSearch {
                 By.cssSelector("article.article div.info header.info-header h2.title")
             );
 
-            if (!articles.isEmpty()) {
-                System.out.println("Article Titles:");
-                for (WebElement article : articles) {
-                    String title = article.getText();
-                    System.out.println(title);
+                if (!articles.isEmpty()) {
+                    System.out.println("Article Titles:");
+                    for (WebElement article : articles) {
+                        String title = article.getText();
+                        articleTitles.add(title);
+                        System.out.println(title);
+                    }
+                } else {
+                    System.out.println("No articles found.");
                 }
-            } else {
-                System.out.println("No articles found.");
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            System.out.println("Error during search and navigation:");
-            e.printStackTrace();
-        }
+        return articleTitles;
     }
 
     public static void main(String[] args) {
@@ -87,3 +89,4 @@ public class FoxNewsSearch {
         }
     }
 }
+
