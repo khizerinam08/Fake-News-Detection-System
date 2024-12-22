@@ -186,3 +186,4 @@ class ScraperException extends RuntimeException {
         super(message, cause);
     }
 }
+}
