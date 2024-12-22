@@ -1,6 +1,4 @@
-<<<<<<<< HEAD:src/main/java/com/example/WebScrapingFBUpdated.java
-package com.example;
-========
+
 package com.detector.SocialMediaRetrieve;
 
 >>>>>>>> 428df0bb832f31f44947e7b82f35d2a61dd7e86a:src/main/java/com/detector/SocialMediaRetrieve/WebScrapingFBUpdated.java
