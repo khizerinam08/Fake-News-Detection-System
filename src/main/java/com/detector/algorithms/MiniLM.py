@@ -1,102 +1,12 @@
-import torch
-from transformers import AutoTokenizer, AutoModel
-import warnings
-import json
-import re
+from transformers import pipeline
 
-# Suppress warnings
-warnings.filterwarnings("ignore")
+# Load a pre-trained NLI model
+nli_model = pipeline("text-classification", model="roberta-large-mnli")
 
-# Load model and tokenizer
-model_name = "sentence-transformers/all-MiniLM-L6-v2"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModel.from_pretrained(model_name)
+# Define statements
+statement1 = "Israel attacks Gaza through the north side"
+statement2 = "Palestine is not safe for now. Israel is marching forward."
 
-def normalize_text(text):
-    """Normalize text by removing punctuation and standardizing whitespace"""
-    text = text.lower()
-    text = re.sub(r'[^\w\s]', '', text)
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
-
-def detect_direct_contradiction(text1, text2):
-    """Check for direct contradictions using pattern matching"""
-    # Normalize texts
-    t1 = normalize_text(text1)
-    t2 = normalize_text(text2)
-    
-    # Basic patterns for contradictions
-    patterns = [
-        # Direct negation
-        (r'\b(is|was|are|were)\b', r'\1 not'),
-        (r'\b(is|was|are|were)n\'?t\b', r'\1'),
-        # Presence vs absence
-        (r'\bhad\b', r'had no'),
-        (r'\bhad no\b', r'had'),
-        # Antonyms (expand this list as needed)
-        (r'\bwith\b', r'without'),
-        (r'\bwithout\b', r'with'),
-    ]
-    
-    # Check each pattern
-    for pattern, replacement in patterns:
-        t1_mod = re.sub(pattern, replacement, t1)
-        if t1_mod == t2 or t2 == t1_mod:
-            return True
-            
-    # Handle double negatives
-    if ('not' in t1 and 'not' in t2) or ("nt" in t1 and "nt" in t2):
-        t1_positive = t1.replace(' not ', ' ').replace('nt ', ' ')
-        t2_positive = t2.replace(' not ', ' ').replace('nt ', ' ')
-        if t1_positive == t2_positive:
-            return True
-    
-    return False
-
-def get_semantic_contradiction(text1, text2):
-    """Calculate semantic contradiction using embeddings"""
-    inputs = tokenizer([text1, text2], padding=True, truncation=True, return_tensors="pt")
-    
-    with torch.no_grad():
-        outputs = model(**inputs)
-        embeddings = outputs.last_hidden_state.mean(dim=1)
-        similarity = torch.nn.functional.cosine_similarity(embeddings[0].unsqueeze(0), embeddings[1].unsqueeze(0))
-        contradiction_score = (1 - similarity.item())
-    
-    return contradiction_score
-
-def analyze_contradiction(text1, text2):
-    """Analyze contradiction using both pattern matching and semantic analysis"""
-    # First check for direct contradictions
-    if detect_direct_contradiction(text1, text2):
-        return {
-            "contradiction_score": 1.0,
-            "is_contradictory": True,
-            "method": "pattern_matching",
-            "confidence": "high"
-        }
-    
-    # If no direct contradiction found, use semantic analysis
-    contradiction_score = get_semantic_contradiction(text1, text2)
-    confidence = "high" if abs(contradiction_score - 0.5) > 0.3 else "medium"
-    
-    return {
-        "contradiction_score": contradiction_score,
-        "is_contradictory": contradiction_score > 0.3,
-        "method": "semantic_analysis",
-        "confidence": confidence
-    }
-
-def main():
-    # Hardcoded example strings
-    text1 = "The sky is blue"
-    text2 = "The sky is not blue"
-    
-    try:
-        result = analyze_contradiction(text1, text2)
-        print(json.dumps(result, indent=2))
-    except Exception as e:
-        print(json.dumps({"error": str(e)}, indent=2))
-
-if __name__ == "__main__":
-    main()
+# Combine as premise and hypothesis
+result = nli_model(f"{statement1} [SEP] {statement2}")
+print(result)
