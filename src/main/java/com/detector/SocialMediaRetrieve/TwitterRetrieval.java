@@ -21,7 +21,7 @@ import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
-public class App {
+public class TwitterRetrieval {
 
     public static void main(String[] args) throws IOException, URISyntaxException {
         String bearerToken = "AAAAAAAAAAAAAAAAAAAAAO6fxAEAAAAACpMKeL9AQM4dGiMPyNRxxgHCfHw%3DhbKyHC1W7QhXQNVAI1tqj4gNUcNdxG8Ae7VaF3iKHWhtxbrnkY"; // Replace with your actual bearer token
