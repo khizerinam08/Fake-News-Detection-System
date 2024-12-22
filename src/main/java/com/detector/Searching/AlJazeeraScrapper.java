@@ -1,4 +1,4 @@
-package com.detector.Searching;
+package org.example;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -13,70 +13,48 @@ import java.util.List;
 
 public class AlJazeeraScrapper {
     public static void main(String[] args) {
-        // Set up ChromeOptions (optional for headless mode)
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
 
-        // Initialize WebDriver
+        // Set page load strategy too NONE to avoid waiting for full page load
+        options.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.NONE);
+
         WebDriver driver = new ChromeDriver(options);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
         try {
-            String url = "https://www.aljazeera.com/search/";
-            String keyword = "Donald Trump";
+            // Navigate to the search page
+            driver.get("https://www.aljazeera.com/search/Donald%20Trump");
 
-            String searchUrl = url + keyword.replace(" ", "%20");
-            driver.get(searchUrl);
-
-            // Initialize WebDriverWait with a timeout of 10 seconds
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-
-            // List to store the extracted article titles
+            // Wait for and extract articles as soon as they appear
             List<String> articleTitles = new ArrayList<>();
 
-            // Continue until we have at least 20 articles
-            while (articleTitles.size() < 20) {
-                // Wait for the articles to load
-                List<WebElement> articles = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.cssSelector("h3.gc__title")));
+            // Wait for the first batch of articles
+            wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.cssSelector("h3.gc__title a.u-clickable-card__link span")));
 
-                // Extract titles from the visible articles
-                for (WebElement article : articles) {
-                    if (articleTitles.size() >= 20) break;
+            // Extract available article titles
+            List<WebElement> articles = driver.findElements(
+                    By.cssSelector("h3.gc__title a.u-clickable-card__link span"));
 
-                    // Find the anchor tag inside the h3 element
-                    WebElement link = article.findElement(By.cssSelector("a.u-clickable-card__link"));
-                    WebElement spanElement = link.findElement(By.tagName("span"));
-
-                    // Get the text inside the <span> element
-                    String spanText = spanElement.getText();
-
-                    // Add to the list if not already added
-                    if (!articleTitles.contains(spanText)) {
-                        articleTitles.add(spanText);
-                        System.out.println("Extracted Article: " + spanText);
-                    }
+            for (WebElement article : articles) {
+                String title = article.getText().trim();
+                if (!title.isEmpty() && !articleTitles.contains(title)) {
+                    articleTitles.add(title);
+                    System.out.println("Article " + articleTitles.size() + ": " + title);
                 }
-
-                // Check if the "See More" button exists and is clickable
-                try {
-                    WebElement seeMoreButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("button.show-more-button big-margin")));
-                    seeMoreButton.click(); // Click the "See More" button
-                } catch (Exception e) {
-                    System.out.println("No more articles to load or 'See More' button not clickable.");
-                    break; // Exit loop if button is not found or clickable
-                }
-
-                // Add a short wait to allow articles to load after clicking "See More"
-                Thread.sleep(2000);
             }
 
-            // Print all extracted article titles
-            System.out.println("Total Articles Extracted: " + articleTitles.size());
-            articleTitles.forEach(title -> System.out.println(title));
+            // Print final results
+            System.out.println("\nFinal Results:");
+            System.out.println("Total Articles Found: " + articleTitles.size());
+            for (int i = 0; i < articleTitles.size(); i++) {
+                System.out.println((i + 1) + ". " + articleTitles.get(i));
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            // Close the browser
             driver.quit();
         }
     }
