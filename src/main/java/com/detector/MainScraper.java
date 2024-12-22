@@ -125,8 +125,8 @@ public class MainScraper {
 
         // Al Jazeera
         System.out.println("Searching headlines on Al Jazeera...");
-        AlJazeeraScrapper alJazeeraScrapper = new AlJazeeraScrapper();
-        List<String> alJazeeraHeadlines = alJazeeraScrapper.searchAlJazeera(keyword);
+       System.out.println("Searching headlines on Al Jazeera...");
+        List<String> alJazeeraHeadlines = AlJazeeraScrapper.searchAlJazeera(keyword);
         headlinesMap.put("Al Jazeera", alJazeeraHeadlines);
 
         // BBC News
