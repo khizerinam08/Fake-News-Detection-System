@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-package com.detector.Searching;
-=======
-
 package com.detector.Searching;
 
->>>>>>> b41743f4890ae809219c872e0d306b7c9642ea68
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
