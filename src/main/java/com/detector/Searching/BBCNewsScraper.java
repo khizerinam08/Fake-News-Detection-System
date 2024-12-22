@@ -1,9 +1,6 @@
-<<<<<<< HEAD:src/main/java/com/example/BBCNewsScraper.java
-package com.example;
 
-=======
 package com.detector.Searching;
->>>>>>> 05a236a45a1f97ff3bedcf3c6949f2dd2e3e3594:src/main/java/com/detector/Searching/BBCNewsScraper.java
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
