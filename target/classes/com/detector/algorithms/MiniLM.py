@@ -1,12 +1,25 @@
+import sys
 from transformers import pipeline
 
-# Load a pre-trained NLI model
+# Load the pre-trained NLI model
 nli_model = pipeline("text-classification", model="roberta-large-mnli")
 
-# Define statements
-statement1 = "Israel attacks Gaza through the north side"
-statement2 = "Palestine is not safe for now. Israel is marching forward."
+# Get the input arguments
+if len(sys.argv) != 3:
+    print("Usage: python MiniLM.py <text1> <text2>")
+    sys.exit(1)
 
-# Combine as premise and hypothesis
-result = nli_model(f"{statement1} [SEP] {statement2}")
-print(result)
+statement1 = sys.argv[1]
+statement2 = sys.argv[2]
+
+# Pass the statements as a pair (premise, hypothesis)
+input_text = (statement1, statement2)
+
+# Get the model result
+result = nli_model(input_text)
+
+# Extract the contradiction score
+contradiction_score = next((item['score'] for item in result if item['label'] == "CONTRADICTION"), 0.0)
+
+# Print the result in a parsable format
+print(f"contradiction_score: {contradiction_score}")

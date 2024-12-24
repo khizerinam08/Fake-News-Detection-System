@@ -156,7 +156,7 @@ public class BBCNewsScraper implements AutoCloseable {
                         .until(driver -> !driver.getCurrentUrl().equals(currentUrl));
                     
                     // Wait for new content to load
-                    Thread.sleep(3000);
+                    Thread.sleep(1000);
                     
                     // Wait for at least one new headline to appear
                     waitForElement(By.cssSelector("[data-testid='card-headline']"));

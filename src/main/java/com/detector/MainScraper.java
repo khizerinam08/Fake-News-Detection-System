@@ -167,32 +167,38 @@ public class MainScraper {
 
     private static double getContradictionScore(String text1, String text2) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("python", "src/main/java/com/detector/algorithms/MiniLM.py", text1, text2);
+            ProcessBuilder processBuilder = new ProcessBuilder("python", 
+                "src/main/java/com/detector/algorithms/MiniLM.py", 
+                text1, 
+                text2);
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
-
+    
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             StringBuilder output = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
                 output.append(line);
             }
-
             process.waitFor();
             reader.close();
-
+    
+            // Debug: Print the full Python script output
+            System.out.println("MiniLM Output: " + output);
+    
+            // Parse the contradiction score
             String result = output.toString();
             if (result.contains("contradiction_score")) {
-                int startIndex = result.indexOf("contradiction_score") + 20;
-                int endIndex = result.indexOf(",", startIndex);
-                return Double.parseDouble(result.substring(startIndex, endIndex));
+                int startIndex = result.indexOf("contradiction_score:") + 20;
+                String scoreString = result.substring(startIndex).trim();
+                return Double.parseDouble(scoreString);
             } else {
-                System.out.println("Error in MiniLM script output: " + result);
+                System.out.println("Error: Expected 'contradiction_score' in output. Output was: " + result);
                 return 0.0;
             }
         } catch (Exception e) {
             e.printStackTrace();
             return 0.0;
         }
-    }
-}
+        }}
+    
