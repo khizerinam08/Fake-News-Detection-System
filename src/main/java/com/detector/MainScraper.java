@@ -137,17 +137,17 @@ public class MainScraper {
         }
 
         // CNN News
-        System.out.println("Searching headlines on CNN News...");
-        try (CNNNewsSearch cnnNewsSearch = new CNNNewsSearch(10)) {
-            List<String> cnnHeadlines = cnnNewsSearch.scrapeCNNNews(keyword);
-            headlinesMap.put("CNN News", cnnHeadlines);
-        }
+       // System.out.println("Searching headlines on CNN News...");
+       // try (CNNNewsSearch cnnNewsSearch = new CNNNewsSearch(10)) {
+        //    List<String> cnnHeadlines = cnnNewsSearch.scrapeCNNNews(keyword);
+          //  headlinesMap.put("CNN News", cnnHeadlines);
+       // }
 
         // Fox News
-        System.out.println("Searching headlines on Fox News...");
-        FoxNewsSearch foxNewsSearch = new FoxNewsSearch(driver);
-        List<String> foxHeadlines = foxNewsSearch.searchFoxNews(keyword);
-        headlinesMap.put("Fox News", foxHeadlines);
+       // System.out.println("Searching headlines on Fox News...");
+       // FoxNewsSearch foxNewsSearch = new FoxNewsSearch(driver);
+        //List<String> foxHeadlines = foxNewsSearch.searchFoxNews(keyword);
+        //headlinesMap.put("Fox News", foxHeadlines);
 
         return headlinesMap;
     }
@@ -167,38 +167,47 @@ public class MainScraper {
 
     private static double getContradictionScore(String text1, String text2) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("python", 
-                "src/main/java/com/detector/algorithms/MiniLM.py", 
-                text1, 
-                text2);
+            // Clean and normalize the input texts
+            text1 = text1.replaceAll("[\"'\n\r]", " ").trim();
+            text2 = text2.replaceAll("[\"'\n\r]", " ").trim();
+            
+            // Create process with explicit Python command
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                "python",  // or "python3" depending on your system
+                "src/main/java/com/detector/algorithms/MiniLM.py",
+                text1,
+                text2
+            );
+            
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
     
+            // Read the output
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder output = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
-                output.append(line);
+                System.out.println("Debug output: " + line); // Debug line
+                if (line.startsWith("contradiction_score:")) {
+                    String scoreStr = line.substring("contradiction_score:".length()).trim();
+                    try {
+                        double score = Double.parseDouble(scoreStr);
+                        System.out.println("Parsed score: " + score); // Debug line
+                        return score;
+                    } catch (NumberFormatException e) {
+                        System.err.println("Failed to parse score: " + scoreStr);
+                    }
+                }
             }
-            process.waitFor();
-            reader.close();
     
-            // Debug: Print the full Python script output
-            System.out.println("MiniLM Output: " + output);
-    
-            // Parse the contradiction score
-            String result = output.toString();
-            if (result.contains("contradiction_score")) {
-                int startIndex = result.indexOf("contradiction_score:") + 20;
-                String scoreString = result.substring(startIndex).trim();
-                return Double.parseDouble(scoreString);
-            } else {
-                System.out.println("Error: Expected 'contradiction_score' in output. Output was: " + result);
-                return 0.0;
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                System.err.println("Python script exited with code: " + exitCode);
             }
+    
         } catch (Exception e) {
+            System.err.println("Error in getContradictionScore: " + e.getMessage());
             e.printStackTrace();
-            return 0.0;
         }
-        }}
-    
+        return 0.0;
+    }
+    }
