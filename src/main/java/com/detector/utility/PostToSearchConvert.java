@@ -1,121 +1,131 @@
 package com.detector.utility;
 
-import opennlp.tools.tokenize.TokenizerME;
-import opennlp.tools.tokenize.TokenizerModel;
-import opennlp.tools.postag.POSModel;
-import opennlp.tools.postag.POSTaggerME;
-import opennlp.tools.stemmer.PorterStemmer;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import edu.stanford.nlp.ling.CoreAnnotations;
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.pipeline.CoreDocument;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 
 public class PostToSearchConvert {
-    private TokenizerME tokenizer;
-    private POSTaggerME posTagger;
-    private PorterStemmer stemmer;
-    private Set<String> stopWords;
-    private Set<String> exceptions;
+    private final StanfordCoreNLP pipeline;
+    private final Set<String> stopwords;
+    private final Set<String> commonWords;
+    private static final int MAX_KEYWORDS = 4;
+    private static final int MIN_WORD_LENGTH = 3;
 
     public PostToSearchConvert() {
-        try {
-            // Initialize OpenNLP tools
-            InputStream tokenizerStream = getClass().getClassLoader().getResourceAsStream("en-token.bin");
-            if (tokenizerStream == null) {
-                System.out.println("Error: Tokenizer model file not found.");
-                return;
-            }
-            TokenizerModel tokenizerModel = new TokenizerModel(tokenizerStream);
-            tokenizer = new TokenizerME(tokenizerModel);
+        Properties props = new Properties();
+        props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner");
+        pipeline = new StanfordCoreNLP(props);
+        
+        stopwords = new HashSet<>(Arrays.asList(
+            "a", "an", "and", "are", "as", "at", "be", "by", "for", "from",
+            "has", "he", "in", "is", "it", "its", "of", "on", "that", "the",
+            "to", "was", "were", "will", "with", "what", "said", "appears",
+            "reported", "according", "sources", "breaking", "latest", "update",
+            "during", "after", "before", "while", "says", "claimed", "reports",
+            "could", "would", "should", "must", "may", "might", "new"
+        ));
 
-            InputStream posStream = getClass().getClassLoader().getResourceAsStream("en-pos-maxent.bin");
-            if (posStream == null) {
-                System.out.println("Error: POS model file not found.");
-                return;
-            }
-            POSModel posModel = new POSModel(posStream);
-            posTagger = new POSTaggerME(posModel);
-
-            stemmer = new PorterStemmer();
-            
-            // Initialize common English stop words
-            stopWords = new HashSet<>(Arrays.asList(
-                "a", "an", "and", "are", "as", "at", "be", "by", "for", "from",
-                "has", "he", "in", "is", "it", "its", "of", "on", "that", "the",
-                "to", "was", "were", "will", "with", "the", "this", "but", "they",
-                "have", "had", "what", "when", "where", "who", "which", "why", "how"
-            ));
-
-            // Expanded exceptions list to preserve certain words
-            exceptions = new HashSet<>(Arrays.asList(
-                "news", "football", "score", "highlight", "match", "breaking", "update",
-                "climate", "wildlife", "impact", "results", "refugees", "syria", "bashar",
-                "toppling", "fragile", "conflict", "return", "society", "genova", "press", "briefing",
-                "country", "people"
-            ));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        commonWords = new HashSet<>(Arrays.asList(
+            "people", "time", "year", "day", "man", "woman", "world", "life",
+            "country", "state", "city", "government", "president", "minister",
+            "official", "police", "military", "army", "force", "security",
+            "report", "statement", "announcement", "news", "press", "media"
+        ));
     }
 
     public String convert(String caption) {
-        // Tokenize the text
-        String[] tokens = tokenizer.tokenize(caption);
+        if (caption == null || caption.trim().isEmpty()) {
+            return "";
+        }
 
-        // Get parts of speech
-        String[] tags = posTagger.tag(tokens);
+        CoreDocument doc = new CoreDocument(caption);
+        pipeline.annotate(doc);
 
-        List<String> keywords = new ArrayList<>();
+        // Track word frequency for uniqueness scoring
+        Map<String, Integer> wordFrequency = new HashMap<>();
+        Map<String, Integer> firstPositions = new HashMap<>();
+        Map<String, Double> keywordScores = new HashMap<>();
+        
+        // First pass: collect word frequencies
+        doc.tokens().forEach(token -> {
+            String word = token.word().toLowerCase();
+            if (!stopwords.contains(word) && word.length() >= MIN_WORD_LENGTH) {
+                wordFrequency.merge(word, 1, Integer::sum);
+            }
+        });
 
-        // Extract important words (nouns, verbs, adjectives)
-        for (int i = 0; i < tokens.length; i++) {
-            String token = tokens[i].toLowerCase();
-            String tag = tags[i];
+        // Second pass: score words
+        int position = 0;
+        for (CoreLabel token : doc.tokens()) {
+            String word = token.word().toLowerCase();
+            String pos = token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
+            String ner = token.get(CoreAnnotations.NamedEntityTagAnnotation.class);
+            String lemma = token.get(CoreAnnotations.LemmaAnnotation.class);
 
-            // Skip stop words and punctuation
-            if (stopWords.contains(token) || token.matches("\\p{Punct}")) {
+            if (stopwords.contains(word) || word.length() < MIN_WORD_LENGTH) {
+                position++;
                 continue;
             }
 
-            // Keep nouns (NN*), verbs (VB*), and adjectives (JJ*), and avoid stemming for some useful words
-            if (tag.startsWith("NN") || tag.startsWith("VB") || tag.startsWith("JJ")) {
-                // Exclude stemming for words in the exceptions list
-                if (exceptions.contains(token)) {
-                    keywords.add(token);
-                } else {
-                    // Stem the word to get its root form
-                    String stemmed = stemmer.stem(token);
-                    if (!keywords.contains(stemmed)) {
-                        keywords.add(stemmed);
-                    }
-                }
-            }
+            firstPositions.putIfAbsent(word, position);
+            double score = calculateScore(ner, pos, position, word, wordFrequency.get(word));
+            keywordScores.merge(word, score, Double::sum);
+            position++;
         }
 
-        // Restrict the output to the first 10 words
-        if (keywords.size() > 4) {
-            keywords = keywords.subList(0, 4);
+        // Select and order keywords
+        return keywordScores.entrySet().stream()
+            .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+            .limit(MAX_KEYWORDS)
+            .sorted(Comparator.comparing(e -> firstPositions.get(e.getKey())))
+            .map(Map.Entry::getKey)
+            .collect(Collectors.joining(" "));
+    }
+
+    private double calculateScore(String ner, String pos, int position, String word, int frequency) {
+        double score = 0.0;
+        
+        // NER scoring with higher weights
+        switch (ner) {
+            case "ORGANIZATION": score += 8.0; break;
+            case "PERSON": score += 7.0; break;
+            case "LOCATION": score += 6.0; break;
+            case "DATE": score += 4.0; break;
+            case "MONEY": score += 3.0; break;
+            case "PERCENT": score += 3.0; break;
+            default: 
+                if (pos.startsWith("NN")) score += 2.5;
+                else if (pos.startsWith("VB")) score += 2.0;
+                else if (pos.startsWith("JJ")) score += 1.5;
+                break;
         }
-
-        // Join keywords into a search query
-        return String.join(" ", keywords);
+        
+        // Uncommon word bonus
+        if (!commonWords.contains(word)) {
+            score *= 1.5;
+        }
+        
+        // Word length bonus (favor longer words as they tend to be more specific)
+        score += Math.min(2.0, word.length() / 5.0);
+        
+        // Position bonus (exponential decay)
+        score += 2.0 * Math.exp(-position / 20.0);
+        
+        // Frequency penalty (favor unique words)
+        score *= (1.0 + (1.0 / frequency));
+        
+        return score;
     }
 
-    public static void main(String[] args) {
-        PostToSearchConvert converter = new PostToSearchConvert();
 
-        // Example caption
-        String caption1 = "CEO UnitedHealthcare was fatally shot what police said appears be \\\"premeditated, preplanned targeted\\\"";
-
-        // Convert caption to search-friendly string
-        String searchQuery1 = converter.convert(caption1);
-
-        System.out.println("Original Caption 1: " + caption1);
-        System.out.println("Search Query 1: " + searchQuery1);
-    }
 }

@@ -1,22 +1,25 @@
 package com.detector;
 
-import com.detector.SocialMediaRetrieve.InstagramPostScraper;
-import com.detector.SocialMediaRetrieve.TwitterRetrieval;
-import com.detector.SocialMediaRetrieve.WebScrapingFBUpdated;
-import com.detector.Searching.AlJazeeraScrapper;
-import com.detector.Searching.BBCNewsScraper;
-import com.detector.Searching.CNNNewsSearch;
-import com.detector.Searching.FoxNewsSearch;
-import com.detector.utility.PostToSearchConvert;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+
+import com.detector.Searching.AlJazeeraScrapper;
+import com.detector.Searching.BBCNewsScraper;
+import com.detector.SocialMediaRetrieve.InstagramPostScraper;
+import com.detector.SocialMediaRetrieve.TwitterRetrieval;
+import com.detector.SocialMediaRetrieve.WebScrapingFBUpdated;
+import com.detector.utility.PostToSearchConvert;
 
 public class MainScraper {
     public static void main(String[] args) {
@@ -25,7 +28,7 @@ public class MainScraper {
             //return;
        // }
 
-        String link = "https://www.instagram.com/p/DD3tDOXxSYK/?igsh=bjZuNTl4NXo5NW13";
+        String link = "https://www.instagram.com/p/DD_nJvcNBwM/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==";
         WebDriver driver = initializeDriver();
         String postText = "";
 

@@ -1,15 +1,16 @@
 package com.detector.Searching;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class AlJazeeraScrapper {
 
@@ -19,7 +20,7 @@ public class AlJazeeraScrapper {
 
         try {
             ChromeOptions options = new ChromeOptions();
-            options.addArguments("--headless");
+            
             options.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.NONE);
 
             driver = new ChromeDriver(options);
@@ -40,6 +41,7 @@ public class AlJazeeraScrapper {
             for (WebElement article : articles) {
                 String title = article.getText().trim();
                 if (!title.isEmpty() && !articleTitles.contains(title)) {
+                    System.out.println(title);
                     articleTitles.add(title);
                 }
             }
@@ -57,7 +59,7 @@ public class AlJazeeraScrapper {
 
     public static void main(String[] args) {
         // Example usage
-        List<String> articles = searchAlJazeera("Donald Trump");
+        List<String> articles = searchAlJazeera("PTI protest");
         for (String article : articles) {
             System.out.println(article);
         }
