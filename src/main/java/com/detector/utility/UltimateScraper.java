@@ -3,9 +3,18 @@ package com.detector;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.*;
 import org.openqa.selenium.support.ui.*;
+
+import com.detector.SocialMediaRetrieve.InstagramPostScraper;
+import com.detector.SocialMediaRetrieve.TwitterRetrieval;
+import com.detector.SocialMediaRetrieve.WebScrapingFBUpdated;
+
 import java.time.Duration;
 import java.util.*;
 import java.nio.file.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 
 public class UltimateScraper {
     private WebDriver driver;
@@ -51,7 +60,7 @@ public class UltimateScraper {
             processPages();
         } catch (Exception e) {
             System.err.println("Error during scraping: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("An error occurred: " + e.getMessage());
         }
         return extractedHeadlines;
     }
@@ -180,14 +189,187 @@ public class UltimateScraper {
         }
     }
 
+    private static String extractKeywords(String text) {
+        try {
+            // Clean the input text to avoid command line issues
+            text = text.replaceAll("[\"'\n\r]", " ").trim();
+            
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                "python",
+                "src/main/java/com/detector/algorithms/KeywordExtract.py",
+                text
+            );
+            
+            processBuilder.redirectErrorStream(true);
+            Process process = processBuilder.start();
+            
+            // Read the output into a string
+            StringBuilder output = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    output.append(line.trim());
+                }
+            }
+
+            // Wait for process to complete and check exit code
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                System.err.println("Python script failed with exit code: " + exitCode);
+                return "";
+            }
+
+            String keywords = output.toString().trim();
+            return keywords.isEmpty() ? "" : keywords;
+
+        } catch (Exception e) {
+            System.err.println("Error extracting keywords: " + e.getMessage());
+            return "";
+        }
+    }
+
+    private static String scrapeInstagramPost(WebDriver driver, String link) {
+        InstagramPostScraper scraper = new InstagramPostScraper();
+        String postCaption = scraper.scrapePostCaption(link);
+        if (postCaption != null) {
+            System.out.println("Instagram Post Caption: " + postCaption);
+            return postCaption;
+        } else {
+            System.out.println("Failed to extract Instagram post caption.");
+            return "";
+        }
+    }
+
+    private static String scrapeFacebookPost(WebDriver driver, String link) {
+        String postContent = WebScrapingFBUpdated.scrapePost(driver);
+        if (postContent != null) {
+            System.out.println("Facebook Post Content: " + postContent);
+            return postContent;
+        } else {
+            System.out.println("Failed to extract Facebook post content.");
+            return "";
+        }
+    }
+
+    private static String scrapeTwitterPost(String link) {
+        String bearerToken = "AAAAAAAAAAAAAAAAAAAAAO6fxAEAAAAACpMKeL9AQM4dGiMPyNRxxgHCfHw%3DhbKyHC1W7QhXQNVAI1tqj4gNUcNdxG8Ae7VaF3iKHWhtxbrnkY"; 
+        String tweetId = TwitterRetrieval.extractTweetIdFromUrl(link);
+        if (tweetId == null) {
+            System.out.println("Invalid Twitter URL. Please provide a valid URL.");
+            return "";
+        }
+
+        try {
+            String tweetText = TwitterRetrieval.getTweets(tweetId, bearerToken);
+            if (tweetText != null && !tweetText.isEmpty()) {
+                System.out.println("Tweet Text: " + tweetText);
+                return tweetText;
+            } else {
+                System.out.println("Could not fetch the tweet.");
+                return "";
+            }
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    private static void applyMiniLM(String postText, Map<String, List<String>> headlinesMap) {
+        for (Map.Entry<String, List<String>> entry : headlinesMap.entrySet()) {
+            String source = entry.getKey();
+            List<String> headlines = entry.getValue();
+
+            System.out.println("Contradiction/Similarity with headlines from " + source + ":");
+            for (String headline : headlines) {
+                double contradictionScore = getContradictionScore(postText, headline);
+                System.out.printf("Contradiction score with \"%s\": %.4f%n", headline, contradictionScore);
+            }
+        }
+    }
+
+    private static double getContradictionScore(String text1, String text2) {
+        try {
+            // Clean and normalize the input texts
+            text1 = text1.replaceAll("[\"'\n\r]", " ").trim();
+            text2 = text2.replaceAll("[\"'\n\r]", " ").trim();
+            
+            // Create process with explicit Python command
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                "python",  // or "python3" depending on your system
+                "src/main/java/com/detector/algorithms/MiniLM.py",
+                text1,
+                text2
+            );
+            
+            processBuilder.redirectErrorStream(true);
+            Process process = processBuilder.start();
+    
+            // Read the output
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println("Debug output: " + line); // Debug line
+                if (line.startsWith("contradiction_score:")) {
+                    String scoreStr = line.substring("contradiction_score:".length()).trim();
+                    try {
+                        double score = Double.parseDouble(scoreStr);
+                        System.out.println("Parsed score: " + score); // Debug line
+                        return score;
+                    } catch (NumberFormatException e) {
+                        System.err.println("Failed to parse score: " + scoreStr);
+                    }
+                }
+            }
+    
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                System.err.println("Python script exited with code: " + exitCode);
+            }
+    
+        } catch (Exception e) {
+            System.err.println("Error in getContradictionScore: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+
     public static void main(String[] args) {
         UltimateScraper scraper = new UltimateScraper();
+        WebDriver driver = scraper.driver;
+        String link = "https://www.instagram.com/p/DD_nJvcNBwM/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==";
+        String postText = "";
         try {
-            List<String> headlines = scraper.scrapeKeyword("azerbaijan airlines kazakhstan al jazeera");
-            System.out.println("\nFound Headlines:");
-            headlines.forEach(System.out::println);
-        } finally {
-            scraper.close();
+    
+            if (link.contains("instagram.com")) {
+                postText = scrapeInstagramPost(driver, link);
+            } else if (link.contains("facebook.com")) {
+                postText = scrapeFacebookPost(driver, link);
+            } else if (link.contains("x.com")) {
+                postText = scrapeTwitterPost(link);
+            } else {
+                System.out.println("Unsupported link. Please provide a link from Instagram, Facebook, or Twitter.");
+            }
+
+            if (!postText.isEmpty()) {
+                String keywords = extractKeywords(postText);
+                
+                List<String> headlines = scraper.scrapeKeyword(keywords);
+                headlines.forEach(System.out::println);
+                // Apply MiniLM for contradiction/similarity
+                Map<String, List<String>> headlinesMap = new HashMap<>();
+                headlinesMap.put("source", headlines);
+                applyMiniLM(postText, headlinesMap);
+            } else {
+                System.out.println("Failed to extract post text.");
+            }
+
+        } 
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        finally {
+        scraper.close();
         }
     }
     
