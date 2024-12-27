@@ -1,7 +1,7 @@
 import spacy
 import sys
 
-def extract_entities(text, top_n=5):
+def extract_entities(text, top_n=3):
     nlp = spacy.load("en_core_web_sm")
     doc = nlp(text)
     entities = [ent.text.lower() for ent in doc.ents if ent.label_ in {"ORG", "GPE", "EVENT", "LOC"}]
@@ -17,6 +17,6 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         input_text = sys.argv[1]
         entities = extract_entities(input_text)
-        print(" ".join(entities))  # Return as comma-separated string
+        print(" ".join(entities))  
     else:
         print("No input text provided")
