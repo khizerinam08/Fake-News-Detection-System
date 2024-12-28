@@ -1,4 +1,4 @@
-package com.detector;
+package com.detector.utility;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.*;
