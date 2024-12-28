@@ -21,17 +21,16 @@ public class BBCNewsScraper implements AutoCloseable {
     private final WebDriver driver;
     private final WebDriverWait wait;
     private final int timeoutSeconds;
-    private final Set<String> headlinesSet; // Changed to Set to ensure uniqueness
+    private final Set<String> headlinesSet; 
     private static final int PAGES_TO_SCRAPE = 3;
 
     public BBCNewsScraper(int timeoutSeconds) {
         this.timeoutSeconds = timeoutSeconds;
         this.driver = initializeDriver();
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
-        this.headlinesSet = new CustomHashSet<>(); // Initialize HashSet instead of Queue
+        this.headlinesSet = new CustomHashSet<>(); // Used HashSet for uniqueness of headlines
         logger.info("BBCNewsScraper initialized with timeout of {} seconds", timeoutSeconds);
     }
-
     private WebDriver initializeDriver() {
         try {
             ChromeOptions options = new ChromeOptions();
@@ -48,7 +47,6 @@ public class BBCNewsScraper implements AutoCloseable {
             throw new ScraperException("Failed to initialize WebDriver", e);
         }
     }
-
     public CustomQueue<String> scrapeBBCNews(String searchQuery) {
         try {
             navigateToHomepage();
@@ -61,7 +59,6 @@ public class BBCNewsScraper implements AutoCloseable {
             return new CustomQueue<>();
         }
     }
-
     private void navigateToHomepage() {
         try {
             driver.get("https://www.bbc.co.uk/news");
@@ -72,7 +69,6 @@ public class BBCNewsScraper implements AutoCloseable {
             throw new ScraperException("Failed to navigate to homepage", e);
         }
     }
-
     private void handleConsentDialog() {
         try {
             WebElement consentButton = wait.until(ExpectedConditions.elementToBeClickable(
@@ -83,13 +79,11 @@ public class BBCNewsScraper implements AutoCloseable {
             logger.debug("No consent dialog found or already accepted");
         }
     }
-
     private boolean performSearch(String query) {
         try {
             WebElement searchIcon = waitForElement(
                 By.cssSelector("button[role='button'][aria-label='Search BBC']"));
             searchIcon.click();
-
             WebElement searchBox = waitForElement(
                 By.cssSelector("[data-testid='search-input-field']"));
             searchBox.clear();
@@ -102,67 +96,43 @@ public class BBCNewsScraper implements AutoCloseable {
             return false;
         }
     }
-
     private void collectHeadlinesFromMultiplePages() {
         try {
             waitForElement(By.cssSelector("[data-testid='newport-card']"));
-
             for (int page = 1; page <= PAGES_TO_SCRAPE; page++) {
                 logger.info("Collecting headlines from page {}", page);
                 collectHeadlinesFromCurrentPage();
-
                 if (page < PAGES_TO_SCRAPE) {
-                    // Store current URL to check if page changes
-                    String currentUrl = driver.getCurrentUrl();
-                    
-                    // Wait for pagination element with increased timeout
-                    WebElement pagination = new WebDriverWait(driver, Duration.ofSeconds(20))
+                    String currentUrl = driver.getCurrentUrl();  // Store current URL to check if page changes
+                    WebElement pagination = new WebDriverWait(driver, Duration.ofSeconds(20)) // Wait for pagination element with timeout
                         .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("[data-testid='pagination']")));
-                    
-                    // Scroll to pagination
-                    ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", pagination);
+                    ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", pagination); // Scroll to pagination
                     Thread.sleep(1500);
-                    
-                    // Find next page button
-                    List<WebElement> buttons = pagination.findElements(By.tagName("button"));
+                    List<WebElement> buttons = pagination.findElements(By.tagName("button")); // Find next page button
                     WebElement nextPageButton = null;
-                    
-                    // Look for button with next page number or "Next" text
-                    for (WebElement button : buttons) {
+                    for (WebElement button : buttons) { // Look for button with next page number or "Next" text
                         String buttonText = button.getText().trim();
                         if (buttonText.equals(String.valueOf(page + 1)) || buttonText.equalsIgnoreCase("Next")) {
                             nextPageButton = button;
                             break;
                         }
                     }
-
                     if (nextPageButton == null || !nextPageButton.isEnabled()) {
                         logger.warn("No more pages available after page {}", page);
                         break;
                     }
-
-                    // Click next page button
                     try {
-                        nextPageButton.click();
+                        nextPageButton.click(); // Click next page button
                     } catch (Exception e) {
-                        // If regular click fails, try JavaScript click
                         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", nextPageButton);
-                    }
-
-                    // Wait for URL to change
-                    new WebDriverWait(driver, Duration.ofSeconds(10))
+                    }// If regular click fails, try JavaScript click
+                    new WebDriverWait(driver, Duration.ofSeconds(10)) // Wait for URL to change
                         .until(driver -> !driver.getCurrentUrl().equals(currentUrl));
-                    
-                    // Wait for new content to load
-                    Thread.sleep(1000);
-                    
-                    // Wait for at least one new headline to appear
-                    waitForElement(By.cssSelector("[data-testid='card-headline']"));
-                    
+                    Thread.sleep(1000);  // Wait for new content to load
+                    waitForElement(By.cssSelector("[data-testid='card-headline']"));// Wait for at least one new headline to appear
                     logger.info("Successfully navigated to page {}", page + 1);
                 }
             }
-
             logger.info("Finished collecting headlines. Total unique headlines: {}", headlinesSet.size());
         } catch (Exception e) {
             logger.error("Error while navigating pages: {}", e.getMessage());
@@ -170,21 +140,13 @@ public class BBCNewsScraper implements AutoCloseable {
     }
     private void collectHeadlinesFromCurrentPage() {
         try {
-            // Wait longer for the page to load completely
-            Thread.sleep(3000);
-            
-            // Wait for headlines to be present
-            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+            Thread.sleep(3000); // Wait longer for the page to load completely
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy( // Wait for headlines to be present
                 By.cssSelector("[data-testid='card-headline']")));
-            
-            // Find all headline elements
-            List<WebElement> headlineElements = driver.findElements(
+            List<WebElement> headlineElements = driver.findElements( // Find all headline elements
                 By.cssSelector("[data-testid='card-headline']"));
-            
             int previousSize = headlinesSet.size();
-            
-            // Extract and store headlines
-            for (WebElement element : headlineElements) {
+            for (WebElement element : headlineElements) { // Extract and store headlines
                 try {
                     String headline = element.getText().trim();
                     if (!headline.isEmpty()) {
@@ -194,14 +156,12 @@ public class BBCNewsScraper implements AutoCloseable {
                     logger.debug("Failed to extract headline: {}", e.getMessage());
                 }
             }
-            
             int newHeadlines = headlinesSet.size() - previousSize;
             logger.info("Added {} new unique headlines from current page", newHeadlines);
         } catch (Exception e) {
             logger.error("Error collecting headlines from current page: {}", e.getMessage());
         }
     }
-
     private WebElement waitForElement(By locator) {
         try {
             return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
@@ -210,7 +170,6 @@ public class BBCNewsScraper implements AutoCloseable {
             throw new ScraperException("Element not found: " + locator, e);
         }
     }
-
     @Override
     public void close() {
         try {
@@ -223,11 +182,10 @@ public class BBCNewsScraper implements AutoCloseable {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) { //Main class for Testing
         try (BBCNewsScraper scraper = new BBCNewsScraper(10)) {
             String searchQuery = "technology";
             CustomQueue<String> headlines = scraper.scrapeBBCNews(searchQuery);
-
             if (headlines.isEmpty()) {
                 System.out.println("No headlines found");
             } else {

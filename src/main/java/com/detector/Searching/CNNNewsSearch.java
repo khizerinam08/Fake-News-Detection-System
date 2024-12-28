@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.ArrayList;
+import com.detector.CustomDataStructures.*;
 import java.util.List;
 
 public class CNNNewsSearch implements AutoCloseable {
@@ -26,7 +26,6 @@ public class CNNNewsSearch implements AutoCloseable {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
         logger.info("CNNNewsSearch initialized with timeout of {} seconds", timeoutSeconds);
     }
-
     private WebDriver initializeDriver() {
         try {
             ChromeOptions options = new ChromeOptions();
@@ -42,20 +41,18 @@ public class CNNNewsSearch implements AutoCloseable {
             throw new ScraperException("Failed to initialize WebDriver", e);
         }
     }
-
     public List<String> scrapeCNNNews(String searchQuery) {
         try {
             navigateToHomepage();
             if (!performSearch(searchQuery)) {
-                return new ArrayList<>();
+                return new CustomArrayList<>();
             }
             return getAllHeadlinesFromMultiplePages();
         } catch (Exception e) {
             logger.error("Error during scraping: {}", e.getMessage());
-            return new ArrayList<>();
+            return new CustomArrayList<>();
         }
     }
-
     private void navigateToHomepage() {
         try {
             driver.get("https://edition.cnn.com/");
@@ -66,7 +63,6 @@ public class CNNNewsSearch implements AutoCloseable {
             throw new ScraperException("Failed to navigate to homepage", e);
         }
     }
-
     private void handleConsentDialog() {
         try {
             WebElement consentButton = wait.until(ExpectedConditions.presenceOfElementLocated(
@@ -77,7 +73,6 @@ public class CNNNewsSearch implements AutoCloseable {
             logger.debug("No consent dialog found or already accepted");
         }
     }
-
     private boolean performSearch(String query) {
         try {
             WebElement searchIcon = waitForElement(By.cssSelector("[aria-label=\"Search Icon\"]"));
@@ -93,37 +88,27 @@ public class CNNNewsSearch implements AutoCloseable {
             return false;
         }
     }
-
     private List<String> getAllHeadlinesFromMultiplePages() {
-        List<String> allHeadlines = new ArrayList<>();
+        List<String> allHeadlines = new CustomArrayList<>();
         int currentPage = 1;
-
         try {
             while (currentPage <= MAX_PAGES) {
-                // Wait for headlines to load
                 Thread.sleep(2000); // Add a small delay for page load
-                
-                // Fetch headlines from the current page
                 List<WebElement> headlineElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
                         By.cssSelector("[class='container__headline-text']")));
-                
+                        // Fetch headlines from the current page
                 for (WebElement element : headlineElements) {
                     allHeadlines.add(element.getText());
                 }
                 logger.info("Retrieved {} headlines from page {}", headlineElements.size(), currentPage);
-
                 if (currentPage >= MAX_PAGES) {
                     break;
                 }
-
-                // Updated selector for the next page button
                 WebElement nextPageButton = wait.until(ExpectedConditions.elementToBeClickable(
                     By.cssSelector("div.pagination-arrow.pagination-arrow-right.search__pagination-link.text-active")));
-                
                 if (nextPageButton.isDisplayed() && nextPageButton.isEnabled()) {
                     nextPageButton.click();
                     currentPage++;
-                    // Wait for the new page to load
                     Thread.sleep(2000); // Add a small delay after clicking
                 } else {
                     logger.info("Next page button not clickable on page {}", currentPage);
@@ -133,10 +118,8 @@ public class CNNNewsSearch implements AutoCloseable {
         } catch (Exception e) {
             logger.error("Error during pagination: {}", e.getMessage());
         }
-
         return allHeadlines;
     }
-
     private WebElement waitForElement(By locator) {
         try {
             return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
@@ -145,7 +128,6 @@ public class CNNNewsSearch implements AutoCloseable {
             throw new ScraperException("Element not found: " + locator, e);
         }
     }
-
     @Override
     public void close() {
         try {
@@ -157,8 +139,7 @@ public class CNNNewsSearch implements AutoCloseable {
             logger.error("Error closing WebDriver: {}", e.getMessage());
         }
     }
-
-    public static void runScraper(String[] args) {
+    public static void runScraper(String[] args) { // Testing CNNNewsSearch 
         try (CNNNewsSearch scraper = new CNNNewsSearch(10)) {
             String searchQuery = "technology";
             List<String> headlines = scraper.scrapeCNNNews(searchQuery);
@@ -176,12 +157,10 @@ public class CNNNewsSearch implements AutoCloseable {
             logger.error("Application error: ", e);
         }
     }
-
 class ScraperException extends RuntimeException {
     public ScraperException(String message) {
         super(message);
     }
-
     public ScraperException(String message, Throwable cause) {
         super(message, cause);
     }

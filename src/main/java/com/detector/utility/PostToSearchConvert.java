@@ -33,7 +33,6 @@ public class PostToSearchConvert {
             "during", "after", "before", "while", "says", "claimed", "reports",
             "could", "would", "should", "must", "may", "might", "new"
         ));
-
         commonWords = new CustomHashSet<>();
         commonWords.addAll(Arrays.asList(
             "people", "time", "year", "day", "man", "woman", "world", "life",

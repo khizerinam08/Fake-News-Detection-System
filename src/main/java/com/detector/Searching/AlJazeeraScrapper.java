@@ -19,24 +19,18 @@ public class AlJazeeraScrapper {
 
         try {
             ChromeOptions options = new ChromeOptions();
-            
             options.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.NONE);
-
             driver = new ChromeDriver(options);
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-
             // Format the search URL
             String searchUrl = "https://www.aljazeera.com/search/" + searchTerm.replace(" ", "%20");
             driver.get(searchUrl);
-
             // Wait for and extract articles as soon as they appear
             wait.until(ExpectedConditions.presenceOfElementLocated(
                     By.cssSelector("h3.gc__title a.u-clickable-card__link span")));
-
             // Extract available article titles
             List<WebElement> articles = driver.findElements(
                     By.cssSelector("h3.gc__title a.u-clickable-card__link span"));
-
             for (WebElement article : articles) {
                 String title = article.getText().trim();
                 if (!title.isEmpty() && !articleTitles.contains(title)) {
@@ -52,10 +46,8 @@ public class AlJazeeraScrapper {
                 driver.quit();
             }
         }
-
         return articleTitles;
     }
-
     public static void main(String[] args) {
         // Example usage
         List<String> articles = searchAlJazeera("PTI protest");

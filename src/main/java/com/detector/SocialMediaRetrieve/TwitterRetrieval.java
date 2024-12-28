@@ -21,22 +21,16 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class TwitterRetrieval {
-
     public static void main(String[] args) throws IOException, URISyntaxException {
-        String bearerToken = "AAAAAAAAAAAAAAAAAAAAAO6fxAEAAAAACpMKeL9AQM4dGiMPyNRxxgHCfHw%3DhbKyHC1W7QhXQNVAI1tqj4gNUcNdxG8Ae7VaF3iKHWhtxbrnkY"; // Replace with your actual bearer token
-
+        String bearerToken = "AAAAAAAAAAAAAAAAAAAAAO6fxAEAAAAACpMKeL9AQM4dGiMPyNRxxgHCfHw%3DhbKyHC1W7QhXQNVAI1tqj4gNUcNdxG8Ae7VaF3iKHWhtxbrnkY"; //Actual bearer token
         // Get the URL from the user
-
-
         String url = "https://x.com/elonmusk/status/1870742007683137631";
-
         // Extract the tweet ID from the URL
         String tweetId = extractTweetIdFromUrl(url);
         if (tweetId == null) {
             System.out.println("Invalid Twitter URL. Please provide a valid URL.");
             return;
         }
-
         // Fetch the tweet
         String tweetText = getTweets(tweetId, bearerToken);
         if (tweetText != null && !tweetText.isEmpty()) {
@@ -45,18 +39,15 @@ public class TwitterRetrieval {
             System.out.println("Could not fetch the tweet.");
         }
     }
-
     /*
      * This method calls the v2 Tweets endpoint with ids as query parameter
      */
     public static String getTweets(String ids, String bearerToken) throws IOException, URISyntaxException {
         String tweetResponse = null;
-
         HttpClient httpClient = HttpClients.custom()
                 .setDefaultRequestConfig(RequestConfig.custom()
                         .setCookieSpec(CookieSpecs.STANDARD).build())
                 .build();
-
         URIBuilder uriBuilder = new URIBuilder("https://api.twitter.com/2/tweets");
         CustomArrayList<NameValuePair> queryParameters = new CustomArrayList<>();
         queryParameters.add(new BasicNameValuePair("ids", ids));

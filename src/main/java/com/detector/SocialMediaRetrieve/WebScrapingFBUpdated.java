@@ -1,3 +1,4 @@
+// References For Selenium Method Usage: https://www.browserstack.com/guide/run-selenium-tests-using-selenium-chromedriver
 
 package com.detector.SocialMediaRetrieve;
 
@@ -27,7 +28,6 @@ public class WebScrapingFBUpdated {
         }
     }
     private static WebDriver initializeDriver() {
-        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver-win64\\chromedriver.exe");
         ChromeOptions options = new ChromeOptions(); // Create Chrome options
         options.addArguments("--start-maximized");
         options.addArguments("--disable-blink-features=AutomationControlled");
