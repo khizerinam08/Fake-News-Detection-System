@@ -1,9 +1,8 @@
 package com.detector.Searching;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
-
+import com.detector.CustomDataStructures.CustomArrayList;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -16,7 +15,7 @@ public class AlJazeeraScrapper {
 
     public static List<String> searchAlJazeera(String searchTerm) {
         WebDriver driver = null;
-        List<String> articleTitles = new ArrayList<>();
+        List<String> articleTitles = new CustomArrayList<>();
 
         try {
             ChromeOptions options = new ChromeOptions();

@@ -1,7 +1,9 @@
 package com.detector.utility;
 
 import org.springframework.web.bind.annotation.*;
-import java.util.HashMap;
+
+import com.detector.CustomDataStructures.CustomHashMap;
+
 import java.util.Map;
 
 @RestController
@@ -16,7 +18,7 @@ public class StringController {
         // Perform your processing and calculate the contradiction score
         String responseString = "Your contradiction score is 0.85";  // Example response
 
-        Map<String, String> response = new HashMap<>();
+        Map<String, String> response = new CustomHashMap<>();
         response.put("response", responseString);
         return response;
     }

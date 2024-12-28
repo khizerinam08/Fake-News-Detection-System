@@ -2,13 +2,11 @@ package com.detector.utility;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+import com.detector.CustomDataStructures.*;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.CoreDocument;
@@ -26,7 +24,8 @@ public class PostToSearchConvert {
         props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner");
         pipeline = new StanfordCoreNLP(props);
         
-        stopwords = new HashSet<>(Arrays.asList(
+        stopwords = new CustomHashSet<>();
+        stopwords.addAll(Arrays.asList(
             "a", "an", "and", "are", "as", "at", "be", "by", "for", "from",
             "has", "he", "in", "is", "it", "its", "of", "on", "that", "the",
             "to", "was", "were", "will", "with", "what", "said", "appears",
@@ -35,7 +34,8 @@ public class PostToSearchConvert {
             "could", "would", "should", "must", "may", "might", "new"
         ));
 
-        commonWords = new HashSet<>(Arrays.asList(
+        commonWords = new CustomHashSet<>();
+        commonWords.addAll(Arrays.asList(
             "people", "time", "year", "day", "man", "woman", "world", "life",
             "country", "state", "city", "government", "president", "minister",
             "official", "police", "military", "army", "force", "security",
@@ -52,9 +52,9 @@ public class PostToSearchConvert {
         pipeline.annotate(doc);
 
         // Track word frequency for uniqueness scoring
-        Map<String, Integer> wordFrequency = new HashMap<>();
-        Map<String, Integer> firstPositions = new HashMap<>();
-        Map<String, Double> keywordScores = new HashMap<>();
+        Map<String, Integer> wordFrequency = new CustomHashMap<>();
+        Map<String, Integer> firstPositions = new CustomHashMap<>();
+        Map<String, Double> keywordScores = new CustomHashMap<>();
         
         // First pass: collect word frequencies
         doc.tokens().forEach(token -> {
@@ -70,7 +70,6 @@ public class PostToSearchConvert {
             String word = token.word().toLowerCase();
             String pos = token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
             String ner = token.get(CoreAnnotations.NamedEntityTagAnnotation.class);
-            String lemma = token.get(CoreAnnotations.LemmaAnnotation.class);
 
             if (stopwords.contains(word) || word.length() < MIN_WORD_LENGTH) {
                 position++;

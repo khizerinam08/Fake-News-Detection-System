@@ -15,11 +15,10 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import java.io.BufferedReader;
+import com.detector.CustomDataStructures.CustomArrayList;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 
 public class TwitterRetrieval {
 
@@ -59,11 +58,10 @@ public class TwitterRetrieval {
                 .build();
 
         URIBuilder uriBuilder = new URIBuilder("https://api.twitter.com/2/tweets");
-        ArrayList<NameValuePair> queryParameters = new ArrayList<>();
+        CustomArrayList<NameValuePair> queryParameters = new CustomArrayList<>();
         queryParameters.add(new BasicNameValuePair("ids", ids));
         queryParameters.add(new BasicNameValuePair("tweet.fields", "created_at,text"));
-        uriBuilder.addParameters(queryParameters);
-
+        uriBuilder.addParameters(queryParameters);  
         HttpGet httpGet = new HttpGet(uriBuilder.build());
         httpGet.setHeader("Authorization", String.format("Bearer %s", bearerToken));
         httpGet.setHeader("Content-Type", "application/json");

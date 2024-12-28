@@ -7,8 +7,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.Map;
+import com.detector.CustomDataStructures.CustomHashMap;
 
 public class WebScrapingFBUpdated {
     private static final int WAIT_TIMEOUT = 30;
@@ -34,14 +34,14 @@ public class WebScrapingFBUpdated {
         options.addArguments("--disable-notifications");
         options.addArguments("--lang=en-US");
         options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
-        Map<String, Object> prefs = new HashMap<>();
+        Map<String, Object> prefs = new CustomHashMap<>();
         prefs.put("credentials_enable_service", false);
         prefs.put("profile.password_manager_enabled", false);
         options.setExperimentalOption("prefs", prefs);
         options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
         options.setExperimentalOption("useAutomationExtension", false);
         WebDriver driver = new ChromeDriver(options);
-        Map<String, Object> parameters = new HashMap<>(); // Set up Chrome DevTools Protocol parameters
+        Map<String, Object> parameters = new CustomHashMap<>(); // Set up Chrome DevTools Protocol parameters
         parameters.put("source", "Object.defineProperty(navigator, 'webdriver', { get: () => undefined });");
         ((ChromeDriver) driver).executeCdpCommand("Page.addScriptToEvaluateOnNewDocument", parameters);
         return driver;

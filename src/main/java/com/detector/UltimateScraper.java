@@ -1,4 +1,4 @@
-package com.detector.utility;
+package com.detector;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.*;
@@ -7,10 +7,10 @@ import org.openqa.selenium.support.ui.*;
 import com.detector.SocialMediaRetrieve.InstagramPostScraper;
 import com.detector.SocialMediaRetrieve.TwitterRetrieval;
 import com.detector.SocialMediaRetrieve.WebScrapingFBUpdated;
+import com.detector.CustomDataStructures.*;
 
 import java.time.Duration;
 import java.util.*;
-import java.nio.file.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -37,21 +37,22 @@ public class UltimateScraper {
             "--no-sandbox"
         );
         
-        Map<String, Object> prefs = new HashMap<>();
+        Map<String, Object> prefs = new CustomHashMap<String, Object>();
         prefs.put("profile.default_content_setting_values.images", 2);
         options.setExperimentalOption("prefs", prefs);
         options.setPageLoadStrategy(PageLoadStrategy.EAGER);
         
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        allowedDomains = new HashSet<>(Arrays.asList(
+        allowedDomains = new CustomHashSet<>();
+        allowedDomains.addAll(Arrays.asList(
             "aljazeera.com",
             "bbc.co.uk",
             "bbc.com",
             "cnn.com",
             "foxnews.com"
         ));
-        extractedHeadlines = new ArrayList<>();
+        extractedHeadlines = new CustomArrayList<String>();
     }
 
     public List<String> scrapeKeyword(String keyword) {
@@ -357,7 +358,7 @@ public class UltimateScraper {
                 List<String> headlines = scraper.scrapeKeyword(keywords);
                 headlines.forEach(System.out::println);
                 // Apply MiniLM for contradiction/similarity
-                Map<String, List<String>> headlinesMap = new HashMap<>();
+                Map<String, List<String>> headlinesMap = new CustomHashMap<>();
                 headlinesMap.put("source", headlines);
                 applyMiniLM(postText, headlinesMap);
             } else {

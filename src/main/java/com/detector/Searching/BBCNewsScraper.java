@@ -12,11 +12,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.Duration;
-import java.util.Queue;
 import java.util.Set;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
+import com.detector.CustomDataStructures.*;
 
 public class BBCNewsScraper implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(BBCNewsScraper.class);
@@ -30,7 +28,7 @@ public class BBCNewsScraper implements AutoCloseable {
         this.timeoutSeconds = timeoutSeconds;
         this.driver = initializeDriver();
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
-        this.headlinesSet = new HashSet<>(); // Initialize HashSet instead of Queue
+        this.headlinesSet = new CustomHashSet<>(); // Initialize HashSet instead of Queue
         logger.info("BBCNewsScraper initialized with timeout of {} seconds", timeoutSeconds);
     }
 
@@ -51,16 +49,16 @@ public class BBCNewsScraper implements AutoCloseable {
         }
     }
 
-    public Queue<String> scrapeBBCNews(String searchQuery) {
+    public CustomQueue<String> scrapeBBCNews(String searchQuery) {
         try {
             navigateToHomepage();
             if (performSearch(searchQuery)) {
                 collectHeadlinesFromMultiplePages();
             }
-            return new LinkedList<>(headlinesSet); // Convert Set to Queue for return
+            return new CustomQueue<String>(headlinesSet); 
         } catch (Exception e) {
             logger.error("Error during scraping: {}", e.getMessage());
-            return new LinkedList<>();
+            return new CustomQueue<>();
         }
     }
 
@@ -228,7 +226,7 @@ public class BBCNewsScraper implements AutoCloseable {
     public static void main(String[] args) {
         try (BBCNewsScraper scraper = new BBCNewsScraper(10)) {
             String searchQuery = "technology";
-            Queue<String> headlines = scraper.scrapeBBCNews(searchQuery);
+            CustomQueue<String> headlines = scraper.scrapeBBCNews(searchQuery);
 
             if (headlines.isEmpty()) {
                 System.out.println("No headlines found");
