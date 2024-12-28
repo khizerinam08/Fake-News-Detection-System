@@ -8,6 +8,16 @@ import com.detector.SocialMediaRetrieve.InstagramPostScraper;
 import com.detector.SocialMediaRetrieve.TwitterRetrieval;
 import com.detector.SocialMediaRetrieve.WebScrapingFBUpdated;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.concurrent.CountDownLatch;
+
 import java.time.Duration;
 import java.util.*;
 import java.nio.file.*;
@@ -15,6 +25,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
+
+
+
 
 public class UltimateScraper {
     private WebDriver driver;
@@ -25,7 +38,12 @@ public class UltimateScraper {
     private static final int MAX_PAGES = 3;
     private int articlesFound = 0;
     private int pagesSearched = 0;
+    private static volatile String responseString;
+    private static final Object lock = new Object();
+
     
+    
+
     public UltimateScraper() {
         setupDriver();
     }
@@ -275,20 +293,47 @@ public class UltimateScraper {
         }
     }
 
-    private static void applyMiniLM(String postText, Map<String, List<String>> headlinesMap) {
+    private static String[] applyMiniLM(String postText, Map<String, List<String>> headlinesMap) {
+        double minScore = Double.MAX_VALUE;  // Initialize with a very high value
+        String bestHeadline = "";  // To store the headline with the least score
+        String bestConfidence = "";  // To store the corresponding confidence level
+        double bestScore = 0.0;  // To store the corresponding score
+    
         for (Map.Entry<String, List<String>> entry : headlinesMap.entrySet()) {
             String source = entry.getKey();
             List<String> headlines = entry.getValue();
-
+    
             System.out.println("Contradiction/Similarity with headlines from " + source + ":");
             for (String headline : headlines) {
-                double contradictionScore = getContradictionScore(postText, headline);
-                System.out.printf("Contradiction score with \"%s\": %.4f%n", headline, contradictionScore);
+                String[] result = getContradictionScore(postText, headline);
+    
+                // Parse the score and confidence from the result
+                if (result != null && result[1] != null && result[2] != null) {
+                    try {
+                        double score = Double.parseDouble(result[1]);  // Parse the score
+                        String confidence = result[2];  // Get the confidence label
+    
+                        // If the current score is less than the previous minimum, update
+                        if (score < minScore) {
+                            minScore = score;
+                            bestHeadline = headline;  // Store the corresponding headline
+                            bestConfidence = confidence;  // Store the corresponding confidence
+                            bestScore = score;  // Store the corresponding score
+                        }
+                    } catch (NumberFormatException e) {
+                        System.err.println("Invalid score format: " + result[1]);
+                    }
+                }
             }
         }
+    
+        // Return an array containing the headline, confidence, and score
+        return new String[] { bestHeadline, bestConfidence, String.valueOf(bestScore) };
     }
-
-    private static double getContradictionScore(String text1, String text2) {
+    
+    private static String[] getContradictionScore(String text1, String text2) {
+        String[] result = new String[3];  // Array to hold label, score, and text
+    
         try {
             // Clean and normalize the input texts
             text1 = text1.replaceAll("[\"'\n\r]", " ").trim();
@@ -304,20 +349,22 @@ public class UltimateScraper {
             
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
-    
+            
             // Read the output
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println("Debug output: " + line); // Debug line
-                if (line.startsWith("contradiction_score:")) {
-                    String scoreStr = line.substring("contradiction_score:".length()).trim();
-                    try {
-                        double score = Double.parseDouble(scoreStr);
-                        System.out.println("Parsed score: " + score); // Debug line
-                        return score;
-                    } catch (NumberFormatException e) {
-                        System.err.println("Failed to parse score: " + scoreStr);
+                System.out.println("Debug output: " + line);  // Debug line
+                
+                // Parse the output to extract the relevant information
+                if (line.contains(":")) {
+                    String[] parts = line.split(": ");
+                    if (parts.length == 2) {
+                        String label = parts[0].trim();
+                        String score = parts[1].trim();
+                        result[0] = label;  // Store the label (e.g., "ENTAILMENT", "CONTRADICTION")
+                        result[1] = score;  // Store the score
+                        result[2] = label;  // Assuming the label represents the confidence level (e.g., "ENTAILMENT", "CONTRADICTION")
                     }
                 }
             }
@@ -326,56 +373,151 @@ public class UltimateScraper {
             if (exitCode != 0) {
                 System.err.println("Python script exited with code: " + exitCode);
             }
-    
+            
         } catch (Exception e) {
             System.err.println("Error in getContradictionScore: " + e.getMessage());
             e.printStackTrace();
         }
-        return 0.0;
-    }
-
-    public static void main(String[] args) {
-        UltimateScraper scraper = new UltimateScraper();
-        WebDriver driver = scraper.driver;
-        String link = "https://www.instagram.com/p/DD_nJvcNBwM/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==";
-        String postText = "";
-        try {
     
-            if (link.contains("instagram.com")) {
-                postText = scrapeInstagramPost(driver, link);
-            } else if (link.contains("facebook.com")) {
-                postText = scrapeFacebookPost(driver, link);
-            } else if (link.contains("x.com")) {
-                postText = scrapeTwitterPost(link);
-            } else {
-                System.out.println("Unsupported link. Please provide a link from Instagram, Facebook, or Twitter.");
-            }
-
-            if (!postText.isEmpty()) {
-                String keywords = extractKeywords(postText);
-                
-                List<String> headlines = scraper.scrapeKeyword(keywords);
-                headlines.forEach(System.out::println);
-                // Apply MiniLM for contradiction/similarity
-                Map<String, List<String>> headlinesMap = new HashMap<>();
-                headlinesMap.put("source", headlines);
-                applyMiniLM(postText, headlinesMap);
-            } else {
-                System.out.println("Failed to extract post text.");
-            }
-
-        } 
-        catch(Exception e){
-            e.printStackTrace();
-        }
-        finally {
-        scraper.close();
-        }
+        return result;
     }
     
+    
+    
+
     public void close() {
         if (driver != null) {
             driver.quit();
         }
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(StringController.class, args); // Start Spring Boot Application
+    
+        UltimateScraper scraper = new UltimateScraper();
+        WebDriver driver = scraper.driver;
+        String postText;
+        String receivedInput = "";
+    
+        try {
+            while(receivedInput == "") {
+                Thread.sleep(1000);
+                receivedInput = StringController.getReceivedString();
+            }
+    
+            if (receivedInput.isEmpty()) {
+                System.out.println("No valid input received from the phone.");
+                return; // Exit if no input received
+            }
+    
+            // Process the link based on the received input
+            if (receivedInput.contains("instagram.com")) {
+                postText = scrapeInstagramPost(driver, receivedInput);
+            } else if (receivedInput.contains("facebook.com")) {
+                postText = scrapeFacebookPost(driver, receivedInput);
+            } else if (receivedInput.contains("x.com")) {
+                postText = scrapeTwitterPost(receivedInput);
+            } else {
+                System.out.println("Unsupported link. Please provide a link from Instagram, Facebook, or Twitter.");
+                return; // Exit if link is unsupported
+            }
+    
+            if (!postText.isEmpty()) {
+                // Extract keywords from the post text
+                String keywords = extractKeywords(postText);
+    
+                // Scrape news headlines based on keywords
+                List<String> headlines = scraper.scrapeKeyword(keywords);
+                headlines.forEach(System.out::println);
+    
+                // Apply MiniLM for contradiction/similarity
+                Map<String, List<String>> headlinesMap = new HashMap<>();
+                headlinesMap.put("source", headlines);
+                String[] result = applyMiniLM(postText, headlinesMap); // Apply MiniLM model
+                String bestHeadline = result[0];
+                String bestConfidence = result[1];
+                String bestScore = result[2];
+    
+                // Combine the three strings into a single response string
+                String combinedResponse = "Best Headline: " + bestHeadline + "\n"
+                                        + "Confidence: " + bestConfidence + "\n"
+                                        + "Score: " + bestScore;
+    
+                // Set the combined response string to be sent back
+                StringController.setResponseString(combinedResponse);
+    
+                System.out.println(combinedResponse); // Print the response for debugging
+            } else {
+                System.out.println("Failed to extract post text.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            scraper.close(); // Ensure WebDriver is closed properly
+        }
+    }
+    
+    public static String getReceivedString() {
+        return StringController.getReceivedString();
+    }
+
+    public static String getResponseString() {
+        synchronized (lock) {
+            return responseString;
+        }
+    }
+
+    public static void setResponseString(String response) {
+        synchronized (lock) {
+            if (response != null) {
+                responseString = response;
+                System.out.println("Response string updated: " + response);
+            } else {
+                System.err.println("Warning: Attempted to set null response");
+            }
+        }
+    }
+    
+    
+    
+
+    
+
+}
+@SpringBootApplication
+@RestController
+@RequestMapping("/api")
+class StringController {
+
+    // Static variable to store the input received from the Android client
+    private static String receivedString = "";
+    private static String responseString = "";
+
+    @PostMapping("/send-receive")
+    public Map<String, String> sendAndReceive(@RequestBody Map<String, String> request) {
+        Map<String, String> response = new HashMap<>();
+        
+        if (request != null && request.containsKey("input")) {
+            receivedString = request.get("input");
+            System.out.println("Received from Android: " + receivedString);
+
+            // Simulating processing logic
+            if(responseString != "") {
+                response.put("response", responseString);
+            }
+        } else {
+            System.out.println("No input received.");
+        }
+        
+        return response;
+    }
+
+    public static String getReceivedString() {
+        return receivedString;
+    }
+
+    // In StringController class, add this method to update responseString
+    public static void setResponseString(String response) {
+        responseString = response;
     }
 }
