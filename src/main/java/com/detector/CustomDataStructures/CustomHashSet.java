@@ -3,12 +3,10 @@ package com.detector.CustomDataStructures;
 import java.util.*;
 
 // Fast set implementation using open addressing with linear probing
-// Warning: Not thread-safe, use Collections.synchronizedSet() if needed
 public class CustomHashSet<E> extends AbstractSet<E> {
     
-    // Benchmarked these values - better than traditional 16/0.75
     private static final int START_SIZE = 32;
-    private static final float GROW_AT = 0.6f;  // Less collisions than 0.75
+    private static final float GROW_AT = 0.6f;  
     
     // Special marker for deleted slots
     private static final Object TOMBSTONE = new Object();
@@ -29,7 +27,6 @@ public class CustomHashSet<E> extends AbstractSet<E> {
         if (e == null) 
             throw new NullPointerException();
             
-        // PERF: Could special-case primitive wrappers
         if (contains(e))
             return false;
             
@@ -45,17 +42,13 @@ public class CustomHashSet<E> extends AbstractSet<E> {
             mods++;
             return true;
         }
-        
-        // Should never happen if contains() worked correctly
         throw new IllegalStateException("Logic error in add()");
     }
-
-    // Main lookup method - optimized for speed
     @Override
     public boolean contains(Object o) {
         if (o == null)
             return false;
-            
+
         // Try to find the element
         int idx = Math.abs(o.hashCode() % data.length);
         int startIdx = idx;
@@ -96,7 +89,6 @@ public class CustomHashSet<E> extends AbstractSet<E> {
         return false;
     }
     
-    // TODO: Optimize this for large sets
     private int findSlot(Object o) {
         int idx = Math.abs(o.hashCode() % data.length);
         while (data[idx] != null && data[idx] != TOMBSTONE) {
@@ -173,7 +165,6 @@ public class CustomHashSet<E> extends AbstractSet<E> {
                         return (E)e;
                     }
                 }
-                // Should never happen if hasNext() works
                 throw new IllegalStateException();
             }
         };
