@@ -19,9 +19,14 @@ import com.detector.Searching.BBCNewsScraper;
 import com.detector.SocialMediaRetrieve.InstagramPostScraper;
 import com.detector.SocialMediaRetrieve.TwitterRetrieval;
 import com.detector.SocialMediaRetrieve.WebScrapingFBUpdated;
-import com.detector.utility.PostToSearchConvert;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MainScraper {
+    private static final Logger logger = LoggerFactory.getLogger(MainScraper.class);
+
     public static void main(String[] args) {
         //if (args.length == 0) {
            //System.out.println("Please provide a link as an argument.");
@@ -44,13 +49,9 @@ public class MainScraper {
             }
 
             if (!postText.isEmpty()) {
-                // Convert post text to search-friendly string
-                PostToSearchConvert converter = new PostToSearchConvert();
-                String searchQuery = converter.convert(postText);
-
-                // Collect headlines from various news websites using the search query
+                String keywords = extractKeywords(postText);
+                String searchQuery = keywords.isEmpty() ? postText : keywords;
                 Map<String, List<String>> headlinesMap = collectHeadlines(driver, searchQuery);
-
                 // Apply MiniLM for contradiction/similarity
                 applyMiniLM(postText, headlinesMap);
             } else {
@@ -213,4 +214,35 @@ public class MainScraper {
         }
         return 0.0;
     }
+
+    private static String extractKeywords(String text) {
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                "python",
+                "src/main/java/com/detector/algorithms/KeywordExtract.py",
+                text
+            );
+            
+            processBuilder.redirectErrorStream(true);
+            Process process = processBuilder.start();
+            
+            StringBuilder output = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    output.append(line);
+                }
+            }
+
+            if (process.waitFor() != 0) {
+                throw new RuntimeException("Python script failed");
+            }
+
+            return output.toString().trim();
+        } catch (Exception e) {
+            logger.error("Failed to extract keywords: ", e);
+            return "";
+        }
     }
+}

@@ -1,0 +1,14 @@
+2024/12/27-18:51:10.705 3020 Reusing MANIFEST C:\Users\Khize\Downloads\Fake-News-Detection-System\chrome-profile\Default\IndexedDB\https_www.aljazeera.com_0.indexeddb.leveldb/MANIFEST-000001
+2024/12/27-18:51:10.706 3020 Recovering log #45
+2024/12/27-18:51:10.706 3020 Reusing old log C:\Users\Khize\Downloads\Fake-News-Detection-System\chrome-profile\Default\IndexedDB\https_www.aljazeera.com_0.indexeddb.leveldb/000045.log 
+2024/12/27-18:51:10.706 3020 Delete type=2 #43
+2024/12/27-18:51:10.854 3020 Level-0 table #50: started
+2024/12/27-18:51:10.858 3020 Level-0 table #50: 657 bytes OK
+2024/12/27-18:51:10.862 3020 Delete type=0 #45
+2024/12/27-18:51:10.862 3020 Manual compaction at level-0 from '\x00\x0f\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x10\x00\x00\x00' @ 0 : 0; will stop at '\x00\x0f\x00\x00\x05' @ 306 : 1
+2024/12/27-18:51:10.863 3020 Compacting 1@0 + 1@1 files
+2024/12/27-18:51:10.866 3020 Generated table #51@0: 58 keys, 1385 bytes
+2024/12/27-18:51:10.866 3020 Compacted 1@0 + 1@1 files => 1385 bytes
+2024/12/27-18:51:10.867 3020 compacted to: files[ 0 1 1 0 0 0 0 ]
+2024/12/27-18:51:10.868 3020 Delete type=2 #50
+2024/12/27-18:51:10.868 3020 Manual compaction at level-0 from '\x00\x0f\x00\x00\x05' @ 306 : 1 .. '\x00\x10\x00\x00\x00' @ 0 : 0; will stop at (end)
