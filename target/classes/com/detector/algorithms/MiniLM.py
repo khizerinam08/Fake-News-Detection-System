@@ -13,7 +13,7 @@ def analyze_sentence_relationship(text1, text2):
         output = []
         for prediction in result:
             label = prediction['label']
-            score = prediction['score']
+            score = int(prediction['score'] * 100)
             output.append(f"{label}: {score:.4f}")
         
         # Print results in expected format

@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.time.Duration;
-import com.detector.CustomDataStructures.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +28,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.detector.CustomDataStructures.CustomArrayList;
+import com.detector.CustomDataStructures.CustomHashMap;
+import com.detector.CustomDataStructures.CustomHashSet;
 import com.detector.SocialMediaRetrieve.InstagramPostScraper;
 import com.detector.SocialMediaRetrieve.TwitterRetrieval;
 import com.detector.SocialMediaRetrieve.WebScrapingFBUpdated;
@@ -40,9 +43,9 @@ public class UltimateScraper {
     private Set<String> allowedDomains;
     private List<String> extractedHeadlines;
     private static final int MAX_ARTICLES = 10;
-    private static final int MAX_PAGES = 3;
+    private static final int MAX_PAGES = 4;
     private int articlesFound = 0;
-    private int pagesSearched = 0;
+    private static int pagesSearched = 0;
     private static volatile String responseString;
     private static final Object lock = new Object();
 
@@ -354,6 +357,12 @@ public class UltimateScraper {
             UltimateScraper scraper = new UltimateScraper();
             driver = scraper.driver;
             String postText;
+            String bestHeadline = "";
+            String bestConfidence = "";
+            String bestScore = "";
+            String keywords ="";
+            List<String> headlines = new ArrayList<>();
+            Map<String, List<String>> headlinesMap = new CustomHashMap<>();
             while (true) {
                 System.out.println("Waiting for new input...");
                 String receivedInput = "";
@@ -376,21 +385,20 @@ public class UltimateScraper {
                 }
                 if (!postText.isEmpty()) {
                     // Extract keywords from the post text
-                String keywords = extractKeywords(postText);
+                keywords = extractKeywords(postText);
                 // Scrape news headlines based on keywords
-                List<String> headlines = scraper.scrapeKeyword(keywords);
+                headlines = scraper.scrapeKeyword(keywords);
                 headlines.forEach(System.out::println);
                 // Apply MiniLM for contradiction/similarity
-                Map<String, List<String>> headlinesMap = new CustomHashMap<>();
                 headlinesMap.put("source", headlines);
                 String[] result = applyMiniLM(postText, headlinesMap); // Apply MiniLM model
-                String bestHeadline = result[0];
-                String bestConfidence = result[1];
-                String bestScore = result[2];
+                bestHeadline = result[0];
+                bestConfidence = result[1];
+                bestScore = result[2];
                 // Combine the three strings into a single response string
                 String combinedResponse = "Best Headline: " + bestHeadline + "\n"
                                         + "Confidence: " + bestConfidence + "\n"
-                                        + "Score: " + bestScore;
+                                        + "Score: " + bestScore + "%";
                 // Set the combined response string to be sent back
                 StringController.setResponseString(combinedResponse);
                 new StringController().receiveData();
@@ -399,9 +407,16 @@ public class UltimateScraper {
                 System.out.println("Failed to extract post text.");
             }
                 // Reset for next iteration
-                postText ="";
+                postText = "";
                 scraper.extractedHeadlines.clear();
                 StringController.resetReceivedString();
+                bestHeadline = "";
+                bestConfidence = "";
+                bestScore = "";
+                keywords = "";
+                headlinesMap.clear();
+                headlines.clear();
+                pagesSearched = 0;
                 System.out.println("Ready for next input...\n");
             }
             
@@ -420,6 +435,7 @@ public class UltimateScraper {
             }
         }
     }
+    
     public static String getReceivedString() {
         String input = "";
         while (input.isEmpty()) {
@@ -451,6 +467,7 @@ public class UltimateScraper {
     public static void resetReceivedString() {
         StringController.resetReceivedString();
     }
+    
 }
 @SpringBootApplication
 @RestController
