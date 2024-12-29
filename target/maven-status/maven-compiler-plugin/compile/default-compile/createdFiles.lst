@@ -1,0 +1,14 @@
+com\detector\UltimateScraper.class
+com\detector\utility\StringController.class
+com\detector\Searching\FoxNewsSearch.class
+com\detector\MainScraper.class
+com\detector\Searching\BBCNewsScraper.class
+com\detector\SocialMediaRetrieve\InstagramPostScraper.class
+com\detector\Searching\CNNNewsSearch$ScraperException.class
+com\detector\SocialMediaRetrieve\TwitterRetrieval.class
+com\detector\Searching\AlJazeeraScrapper.class
+com\detector\Searching\CNNNewsSearch.class
+com\detector\SocialMediaRetrieve\WebScrapingFBUpdated.class
+com\detector\Searching\ScraperException.class
+com\detector\utility\KeywordExtractor.class
+com\detector\utility\PostToSearchConvert.class

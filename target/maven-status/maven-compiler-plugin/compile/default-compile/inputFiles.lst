@@ -1,4 +1,12 @@
-E:\Muqtasid BS Computer Science\FALL-24\CS-250 Data Structures & Algorithms\Project\Fake-News-Detection-System\src\main\java\com\example\FoxNewsSearch.java
-E:\Muqtasid BS Computer Science\FALL-24\CS-250 Data Structures & Algorithms\Project\Fake-News-Detection-System\src\main\java\com\example\InstagramPostScraper.java
-E:\Muqtasid BS Computer Science\FALL-24\CS-250 Data Structures & Algorithms\Project\Fake-News-Detection-System\src\main\java\com\example\PostToSearchConvert.java
-E:\Muqtasid BS Computer Science\FALL-24\CS-250 Data Structures & Algorithms\Project\Fake-News-Detection-System\src\main\java\com\example\WebScrapingFB.java
+C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\Searching\AlJazeeraScrapper.java
+C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\utility\PostToSearchConvert.java
+C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\MainScraper.java
+C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\UltimateScraper.java
+C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\utility\StringController.java
+C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\SocialMediaRetrieve\InstagramPostScraper.java
+C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\Searching\CNNNewsSearch.java
+C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\Searching\FoxNewsSearch.java
+C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\SocialMediaRetrieve\TwitterRetrieval.java
+C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\Searching\BBCNewsScraper.java
+C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\utility\KeywordExtractor.java
+C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\SocialMediaRetrieve\WebScrapingFBUpdated.java

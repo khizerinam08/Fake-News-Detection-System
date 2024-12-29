@@ -1,0 +1,14 @@
+2024/12/27-18:50:11.050 7dd8 Reusing MANIFEST C:\Users\Khize\Downloads\Fake-News-Detection-System\chrome-profile\Default\Local Storage\leveldb/MANIFEST-000001
+2024/12/27-18:50:11.060 7dd8 Recovering log #3
+2024/12/27-18:50:11.069 7dd8 Reusing old log C:\Users\Khize\Downloads\Fake-News-Detection-System\chrome-profile\Default\Local Storage\leveldb/000003.log 
+2024/12/27-18:50:25.019 7f64 Level-0 table #5: started
+2024/12/27-18:50:25.030 7f64 Level-0 table #5: 34259 bytes OK
+2024/12/27-18:50:25.032 7f64 Delete type=0 #3
+2024/12/27-18:50:46.696 7f64 Level-0 table #7: started
+2024/12/27-18:50:46.706 7f64 Level-0 table #7: 79428 bytes OK
+2024/12/27-18:50:46.708 7f64 Delete type=0 #4
+2024/12/27-18:51:03.683 7f64 Level-0 table #9: started
+2024/12/27-18:51:03.696 7f64 Level-0 table #9: 28177 bytes OK
+2024/12/27-18:51:03.698 7f64 Delete type=0 #6
+2024/12/27-18:51:16.023 8050 Level-0 table #11: started
+2024/12/27-18:51:16.036 8050 Level-0 table #11: 75683 bytes OK
