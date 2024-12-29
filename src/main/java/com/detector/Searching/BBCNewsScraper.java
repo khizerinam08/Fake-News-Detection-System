@@ -20,12 +20,10 @@ public class BBCNewsScraper implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(BBCNewsScraper.class);
     private final WebDriver driver;
     private final WebDriverWait wait;
-    private final int timeoutSeconds;
     private final Set<String> headlinesSet; 
     private static final int PAGES_TO_SCRAPE = 3;
 
     public BBCNewsScraper(int timeoutSeconds) {
-        this.timeoutSeconds = timeoutSeconds;
         this.driver = initializeDriver();
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
         this.headlinesSet = new CustomHashSet<>(); // Used HashSet for uniqueness of headlines
