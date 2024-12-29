@@ -2,20 +2,22 @@ package com.detector.utility;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
+import com.detector.CustomDataStructures.*;
 public class KeywordExtractor {
 
     // Stopwords list (you can extend this as needed)
-    private static final Set<String> STOPWORDS = new HashSet<>(Arrays.asList(
-        "is", "and", "the", "of", "to", "a", "in", "on", "for", "with", "by", "at", "an", "it", "from", "as", "that", "this", "was", "are", "be"
-    ));
-
+    private static final Set<String> STOPWORDS = new CustomHashSet<>();
+    static {
+        STOPWORDS.addAll(Arrays.asList(
+            "is", "and", "the", "of", "to", "a", "in", "on", "for", "with", "by", "at", "an", "it", "from", "as", "that", "this", "was", "are", "be"
+        ));
+    }
     public static List<String> extractKeywords(String text, int topN) {
         // Tokenize the text into words
         String[] tokens = text.toLowerCase().split("\\W+"); // Split by non-word characters
         
         // Count word frequencies while ignoring stopwords
-        Map<String, Integer> wordFrequencies = new HashMap<>();
+        Map<String, Integer> wordFrequencies = new CustomHashMap<>();
         for (String token : tokens) {
             if (!STOPWORDS.contains(token) && token.length() > 2) { // Ignore stopwords and short words
                 wordFrequencies.put(token, wordFrequencies.getOrDefault(token, 0) + 1);

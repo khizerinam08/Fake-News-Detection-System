@@ -4,12 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import com.detector.CustomDataStructures.*;
 import java.util.Map;
-import java.util.Queue;
-
+import java.util.List;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -125,7 +122,7 @@ public class MainScraper {
     }
 
     private static Map<String, List<String>> collectHeadlines(WebDriver driver, String keyword) {
-        Map<String, List<String>> headlinesMap = new HashMap<>();
+        Map<String, List<String>> headlinesMap = new CustomHashMap<>();
 
         // Al Jazeera
         System.out.println("Searching headlines on Al Jazeera...");
@@ -136,8 +133,8 @@ public class MainScraper {
         // BBC News
         System.out.println("Searching headlines on BBC News...");
         try (BBCNewsScraper bbcNewsScraper = new BBCNewsScraper(10)) {
-            Queue<String> bbcHeadlines = bbcNewsScraper.scrapeBBCNews(keyword);
-            headlinesMap.put("BBC News", new ArrayList<>(bbcHeadlines));
+            CustomQueue<String> bbcHeadlines = bbcNewsScraper.scrapeBBCNews(keyword);
+            headlinesMap.put("BBC News", new CustomArrayList<>(bbcHeadlines));
         }
 
         // CNN News
