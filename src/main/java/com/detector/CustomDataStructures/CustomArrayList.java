@@ -47,7 +47,6 @@ public class CustomArrayList<T> extends AbstractList<T> implements RandomAccess,
         return true;
     }
     
-    // Optimization: Removed redundant range check since get() already does it
     @Override
     @SuppressWarnings("unchecked")
     public T get(int index) {

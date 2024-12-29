@@ -21,8 +21,8 @@ import com.detector.SocialMediaRetrieve.WebScrapingFBUpdated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MainScraper {
-    private static final Logger logger = LoggerFactory.getLogger(MainScraper.class);
+public class OldScraper {
+    private static final Logger logger = LoggerFactory.getLogger(OldScraper.class);
 
     public static void main(String[] args) {
         //if (args.length == 0) {

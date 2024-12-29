@@ -3,10 +3,8 @@ package com.detector.CustomDataStructures;
 import java.util.*;
 
 // Fast hash-based map implementation optimized for object keys
-// Not thread-safe! Use Collections.synchronizedMap() if needed
 public class CustomHashMap<K,V> extends AbstractMap<K,V> {
     
-    // Found these values through testing - better performance than 16/0.75
     private static final int INIT_SIZE = 32;
     private static final float MAX_LOAD = 0.65f;
     
@@ -15,7 +13,6 @@ public class CustomHashMap<K,V> extends AbstractMap<K,V> {
         final K key;  // final because keys shouldn't change
         V val;
         Node<K,V> next;
-        // Removed equals/hashCode - not needed since we do direct key comparison
         
         Node(K k, V v, Node<K,V> n) {
             key = k;
@@ -37,12 +34,10 @@ public class CustomHashMap<K,V> extends AbstractMap<K,V> {
         resizeAt = (int)(INIT_SIZE * MAX_LOAD);
     }
     
-    // Most common operation - optimized for speed
     @Override 
     public V get(Object key) {
         Node<K,V> n = bins[index(key)];
-        
-        // Direct comparison first - usually faster than equals()
+    
         while (n != null) {
             if (n.key == key || n.key.equals(key)) {
                 return n.val;
@@ -58,7 +53,6 @@ public class CustomHashMap<K,V> extends AbstractMap<K,V> {
             throw new NullPointerException("Null keys not allowed");
         }
         
-        // PERF: Could optimize this for primitive keys
         int idx = index(key);
         
         // Check for existing key
@@ -87,9 +81,7 @@ public class CustomHashMap<K,V> extends AbstractMap<K,V> {
         bins[idx] = new Node<>(key, val, bins[idx]);
     }
     
-    // TODO: Consider adding separate buckets for primitive keys
     private int index(Object key) {
-        // Found this works better than abs() in practice
         return (key.hashCode() & 0x7fffffff) % bins.length;
     }
     
@@ -126,8 +118,6 @@ public class CustomHashMap<K,V> extends AbstractMap<K,V> {
         return items; 
     }
     
-    // Bare minimum iterator implementation
-    // TODO: Make this more efficient for large maps
     @Override
     public Set<Map.Entry<K,V>> entrySet() {
         Set<Map.Entry<K,V>> set = new HashSet<>();
