@@ -15,29 +15,22 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import java.io.BufferedReader;
+import com.detector.CustomDataStructures.CustomArrayList;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 
 public class TwitterRetrieval {
-
     public static void main(String[] args) throws IOException, URISyntaxException {
-        String bearerToken = "AAAAAAAAAAAAAAAAAAAAAO6fxAEAAAAACpMKeL9AQM4dGiMPyNRxxgHCfHw%3DhbKyHC1W7QhXQNVAI1tqj4gNUcNdxG8Ae7VaF3iKHWhtxbrnkY"; // Replace with your actual bearer token
-
+        String bearerToken = "AAAAAAAAAAAAAAAAAAAAAO6fxAEAAAAACpMKeL9AQM4dGiMPyNRxxgHCfHw%3DhbKyHC1W7QhXQNVAI1tqj4gNUcNdxG8Ae7VaF3iKHWhtxbrnkY"; //Actual bearer token
         // Get the URL from the user
-
-
         String url = "https://x.com/elonmusk/status/1870742007683137631";
-
         // Extract the tweet ID from the URL
         String tweetId = extractTweetIdFromUrl(url);
         if (tweetId == null) {
             System.out.println("Invalid Twitter URL. Please provide a valid URL.");
             return;
         }
-
         // Fetch the tweet
         String tweetText = getTweets(tweetId, bearerToken);
         if (tweetText != null && !tweetText.isEmpty()) {
@@ -46,24 +39,20 @@ public class TwitterRetrieval {
             System.out.println("Could not fetch the tweet.");
         }
     }
-
     /*
      * This method calls the v2 Tweets endpoint with ids as query parameter
      */
     public static String getTweets(String ids, String bearerToken) throws IOException, URISyntaxException {
         String tweetResponse = null;
-
         HttpClient httpClient = HttpClients.custom()
                 .setDefaultRequestConfig(RequestConfig.custom()
                         .setCookieSpec(CookieSpecs.STANDARD).build())
                 .build();
-
         URIBuilder uriBuilder = new URIBuilder("https://api.twitter.com/2/tweets");
-        ArrayList<NameValuePair> queryParameters = new ArrayList<>();
+        CustomArrayList<NameValuePair> queryParameters = new CustomArrayList<>();
         queryParameters.add(new BasicNameValuePair("ids", ids));
         queryParameters.add(new BasicNameValuePair("tweet.fields", "created_at,text"));
-        uriBuilder.addParameters(queryParameters);
-
+        uriBuilder.addParameters(queryParameters);  
         HttpGet httpGet = new HttpGet(uriBuilder.build());
         httpGet.setHeader("Authorization", String.format("Bearer %s", bearerToken));
         httpGet.setHeader("Content-Type", "application/json");

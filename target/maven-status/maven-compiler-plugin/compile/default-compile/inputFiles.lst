@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\Searching\AlJazeeraScrapper.java
 C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\utility\PostToSearchConvert.java
 C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\MainScraper.java
@@ -10,3 +11,20 @@ C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\S
 C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\Searching\BBCNewsScraper.java
 C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\utility\KeywordExtractor.java
 C:\Users\Khize\Downloads\Fake-News-Detection-System\src\main\java\com\detector\SocialMediaRetrieve\WebScrapingFBUpdated.java
+=======
+C:\Users\BS Com\Documents\GitHub\Fake-News-Detection-System\src\main\java\com\detector\Searching\CNNNewsSearch.java
+C:\Users\BS Com\Documents\GitHub\Fake-News-Detection-System\src\main\java\com\detector\SocialMediaRetrieve\InstagramPostScraper.java
+C:\Users\BS Com\Documents\GitHub\Fake-News-Detection-System\src\main\java\com\detector\MainScraper.java
+C:\Users\BS Com\Documents\GitHub\Fake-News-Detection-System\src\main\java\com\detector\UltimateScraper.java
+C:\Users\BS Com\Documents\GitHub\Fake-News-Detection-System\src\main\java\com\detector\Searching\FoxNewsSearch.java
+C:\Users\BS Com\Documents\GitHub\Fake-News-Detection-System\src\main\java\com\detector\utility\PostToSearchConvert.java
+C:\Users\BS Com\Documents\GitHub\Fake-News-Detection-System\src\main\java\com\detector\Searching\BBCNewsScraper.java
+C:\Users\BS Com\Documents\GitHub\Fake-News-Detection-System\src\main\java\com\detector\CustomDataStructures\CustomLinkedList.java
+C:\Users\BS Com\Documents\GitHub\Fake-News-Detection-System\src\main\java\com\detector\SocialMediaRetrieve\TwitterRetrieval.java
+C:\Users\BS Com\Documents\GitHub\Fake-News-Detection-System\src\main\java\com\detector\utility\StringController.java
+C:\Users\BS Com\Documents\GitHub\Fake-News-Detection-System\src\main\java\com\detector\CustomDataStructures\CustomHashSet.java
+C:\Users\BS Com\Documents\GitHub\Fake-News-Detection-System\src\main\java\com\detector\SocialMediaRetrieve\WebScrapingFBUpdated.java
+C:\Users\BS Com\Documents\GitHub\Fake-News-Detection-System\src\main\java\com\detector\CustomDataStructures\CustomHashMap.java
+C:\Users\BS Com\Documents\GitHub\Fake-News-Detection-System\src\main\java\com\detector\CustomDataStructures\CustomArrayList.java
+C:\Users\BS Com\Documents\GitHub\Fake-News-Detection-System\src\main\java\com\detector\Searching\AlJazeeraScrapper.java
+>>>>>>> 7add602c8aff49c956387bfb349cec204d547c23
